@@ -1,0 +1,1 @@
+/usr/bin/cc -fPIC -g -shared -Wl,-soname,liball_lib.so -o liball_lib.so CMakeFiles/all_lib.dir/src/lib.c.o   -L/home/duda/Downloads/programming/MeasureSuiteCommandLine/deps/MeasureSuite  -L/home/duda/Downloads/programming/MeasureSuiteCommandLine/deps/AssemblyLine/.libs 

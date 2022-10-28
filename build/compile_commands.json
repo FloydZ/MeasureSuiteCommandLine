@@ -1,0 +1,12 @@
+[
+{
+  "directory": "/home/duda/Downloads/programming/MeasureSuiteCommandLine/build",
+  "command": "/usr/bin/cc  -I/home/duda/Downloads/programming/MeasureSuiteCommandLine/deps/MeasureSuite/src/include -g -std=gnu11 -o CMakeFiles/main.dir/src/main.c.o -c /home/duda/Downloads/programming/MeasureSuiteCommandLine/src/main.c",
+  "file": "/home/duda/Downloads/programming/MeasureSuiteCommandLine/src/main.c"
+},
+{
+  "directory": "/home/duda/Downloads/programming/MeasureSuiteCommandLine/build",
+  "command": "/usr/bin/cc -Dall_lib_EXPORTS -I/home/duda/Downloads/programming/MeasureSuiteCommandLine/deps/MeasureSuite/src/include -g -fPIC -std=gnu11 -o CMakeFiles/all_lib.dir/src/lib.c.o -c /home/duda/Downloads/programming/MeasureSuiteCommandLine/src/lib.c",
+  "file": "/home/duda/Downloads/programming/MeasureSuiteCommandLine/src/lib.c"
+}
+]

@@ -1,0 +1,14 @@
+# Target labels
+ AssemblyLine_project
+# Source files and their labels
+/home/duda/Downloads/programming/MeasureSuiteCommandLine/build/CMakeFiles/AssemblyLine_project
+/home/duda/Downloads/programming/MeasureSuiteCommandLine/build/CMakeFiles/AssemblyLine_project.rule
+/home/duda/Downloads/programming/MeasureSuiteCommandLine/build/CMakeFiles/AssemblyLine_project-complete.rule
+/home/duda/Downloads/programming/MeasureSuiteCommandLine/build/AssemblyLine_project-prefix/src/AssemblyLine_project-stamp/AssemblyLine_project-build.rule
+/home/duda/Downloads/programming/MeasureSuiteCommandLine/build/AssemblyLine_project-prefix/src/AssemblyLine_project-stamp/AssemblyLine_project-configure.rule
+/home/duda/Downloads/programming/MeasureSuiteCommandLine/build/AssemblyLine_project-prefix/src/AssemblyLine_project-stamp/AssemblyLine_project-download.rule
+/home/duda/Downloads/programming/MeasureSuiteCommandLine/build/AssemblyLine_project-prefix/src/AssemblyLine_project-stamp/AssemblyLine_project-install.rule
+/home/duda/Downloads/programming/MeasureSuiteCommandLine/build/AssemblyLine_project-prefix/src/AssemblyLine_project-stamp/AssemblyLine_project-mkdir.rule
+/home/duda/Downloads/programming/MeasureSuiteCommandLine/build/AssemblyLine_project-prefix/src/AssemblyLine_project-stamp/AssemblyLine_project-patch.rule
+/home/duda/Downloads/programming/MeasureSuiteCommandLine/build/AssemblyLine_project-prefix/src/AssemblyLine_project-stamp/AssemblyLine_project-test.rule
+/home/duda/Downloads/programming/MeasureSuiteCommandLine/build/AssemblyLine_project-prefix/src/AssemblyLine_project-stamp/AssemblyLine_project-update.rule

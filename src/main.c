@@ -14,6 +14,8 @@ typedef struct ARG_t {
   int num_batches;
   int batch_size;
 } ARG;
+
+// helper function
 void error_handling_helper_template_str(measuresuite_t ms,
                                         const char *tpl_str) {
   const int len = 1000;
@@ -23,9 +25,11 @@ void error_handling_helper_template_str(measuresuite_t ms,
   free(s);
 }
 
+/// helper function for debugging and error managment
 void error_handling_helper(measuresuite_t ms) {
   error_handling_helper_template_str(ms, "Failed. Reason: %s\n");
 }
+
 ///
 /// \param c_lib path to the c lib
 int bench_lib(const char *c_lib, const char *asm_code, const char *symbol,
