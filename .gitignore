@@ -1,0 +1,6 @@
+.cache/
+.local-history/
+compiler_commands.json
+.vimspector.json
+Session.vim
+
