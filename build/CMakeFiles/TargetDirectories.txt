@@ -1,6 +1,0 @@
-/home/duda/Downloads/programming/MeasureSuiteCommandLine/build/CMakeFiles/MeasureSuite_project.dir
-/home/duda/Downloads/programming/MeasureSuiteCommandLine/build/CMakeFiles/AssemblyLine_project.dir
-/home/duda/Downloads/programming/MeasureSuiteCommandLine/build/CMakeFiles/main.dir
-/home/duda/Downloads/programming/MeasureSuiteCommandLine/build/CMakeFiles/all_lib.dir
-/home/duda/Downloads/programming/MeasureSuiteCommandLine/build/CMakeFiles/edit_cache.dir
-/home/duda/Downloads/programming/MeasureSuiteCommandLine/build/CMakeFiles/rebuild_cache.dir
