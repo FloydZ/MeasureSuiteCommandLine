@@ -169,14 +169,17 @@ int main(int argc, char *argv[]) {
   // mov [rdi], rax
   // ret
   // "
-  if (argc != 3) {
-	printf("arguments:`c_code` `asm_code`\n");
+  if (argc != 7) {
+	printf("arguments:`c_code` `asm_code`, `target`, `arf_width`, `arg_num_in`, `arg_num_out`\n");
 	return 1;
   }
   
   const char *c_code = argv[1];
   const char *asm_code = argv[2];
+  const char *target = argv[3];
+  const int arg_width = atoi(argv[4]);
+  const int arg_num_in = atoi(argv[5]);
+  const int arg_num_out = atoi(argv[6]);
 
-  char lib_path[256];
-  bench(c_code, asm_code, "add_two_numbers", 1, 2, 1);
+  bench(c_code, asm_code, target, arg_width, arg_num_in, arg_num_out);
 }

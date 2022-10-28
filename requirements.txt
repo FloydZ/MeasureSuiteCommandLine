@@ -1,0 +1,7 @@
+pycparser
+json
+pathlib
+argparse
+os
+subprocess
+pycparser
