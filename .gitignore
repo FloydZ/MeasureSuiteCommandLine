@@ -1,7 +1,7 @@
 .cache/
 build/
 .local-history/
-compiler_commands.json
+compile_commands.json
 .vimspector.json
 Session.vim
 
