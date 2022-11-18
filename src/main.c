@@ -183,7 +183,7 @@ int main(int argc, char *argv[]) {
 	// "
 
 	// check if we are in the simple test mode
-	if (argc == 2 && (strncmp(argv[1], "--test", 6) == 0)) {
+	if ((argc == 2) && (strncmp(argv[1], "--test", 6) == 0)) {
 		return test();
 	}
 	
