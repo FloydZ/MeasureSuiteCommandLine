@@ -1,9 +1,13 @@
 cmake_minimum_required(VERSION 3.20.1)
 project(MeasureSuiteCommandLine)
-set(CMAKE_C_STANDARD 11)
 
+# set some appropiated flags and configs
+set(CMAKE_C_STANDARD 11)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_VERBOSE_MAKEFILE ON)
+set(DEBUG_FLAGS "-g -DDEBUG -Wall -Wpedantic -pedantic")
+
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${DEBUG_FLAGS}")
 
 include(ExternalProject)
 ExternalProject_Add(MeasureSuite_project
@@ -15,7 +19,6 @@ ExternalProject_Add(MeasureSuite_project
         TEST_COMMAND      ""
 )
 
-include(ExternalProject)
 ExternalProject_Add(AssemblyLine_project
         SOURCE_DIR        ${CMAKE_SOURCE_DIR}/deps/AssemblyLine
         CONFIGURE_COMMAND cd <SOURCE_DIR> && ./autogen.sh
