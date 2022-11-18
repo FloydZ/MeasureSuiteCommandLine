@@ -32,7 +32,9 @@ void error_handling_helper(measuresuite_t ms) {
 
 ///
 /// \param c_lib path to the c lib
-int bench_lib(const char *c_lib, const char *asm_code, const char *symbol,
+int bench_lib(const char *c_lib, 
+			  const char *asm_code,
+			  const char *symbol,
               const ARG *arg) {
   measuresuite_t ms = NULL;
 
@@ -68,7 +70,8 @@ int bench_lib(const char *c_lib, const char *asm_code, const char *symbol,
 }
 
 /// This function compiles the given c code to a shared library.
-/// NOTE: name of the library currently not randomized.
+/// NOTE: name of the library currently NOT randomized.
+///  		The path `/tmp/measuresuite.so` is hardcoded
 /// \param lib_path return value. Must be allocated from the caller. Will
 /// 	contain the output path of the .so file
 /// \param c_code input c code.
@@ -83,6 +86,7 @@ int compile_c_code(char *lib_path, const char *c_code) {
   fflush(f);
   fclose(f);
 
+  // uff explain whats happening here
   char command[1024] = {0}, *command_ptr = command;
   strncpy(command_ptr, compiler_path, strlen(compiler_path));
   command_ptr += strlen(compiler_path);

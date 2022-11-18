@@ -4,4 +4,6 @@ build/
 compile_commands.json
 .vimspector.json
 Session.vim
+cmake-build-release/
+cmake-build-debug/
 

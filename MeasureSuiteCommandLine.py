@@ -3,13 +3,13 @@ import argparse
 import os
 import pathlib
 import json
-import pycparser
 import tempfile
+import unittest
+import pycparser
 from pycparser import c_ast, parse_file
 
-
 BUILD_FOLDER = "/build"
-DEBUG = True 
+DEBUG = True
 
 
 def build():
@@ -132,13 +132,33 @@ def parse_c_code(c_code: str, target: str):
     return target, 1, 1, 1
 
 
-def main():
+def test_simple():
+    c_code = """#include <stdint.h>
+                void add_two_numbers(uint64_t *o, const uint64_t *i0,
+                                     const uint64_t *i1) {
+                    *o = *i0 + *i1;
+                }"""
+    asm_code = """  mov rax, [rsi]
+                    add rax, [rdx]
+                    mov [rdi], rax
+                    ret"""
+    target = "add_two_numbers"
+    args_width = 1
+    args_in = 2
+    args_out = 1
+    jdata = profile(c_code, asm_code, target, args_width, args_in,
+                    args_out)
+    assert jdata["stats"]
+
+
+if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='MeasureSuiteCommandLine')
     parser.add_argument('-c', required=False, type=str, help='c code')
     parser.add_argument('-a', required=False, type=str, help='asm code')
     parser.add_argument('-cf', required=False, type=str, help='c code file')
     parser.add_argument('-af', required=False, type=str, help='asm code file')
     parser.add_argument('-t', required=False, type=str, help='target')
+    parser.add_argument('--test', action='store_true')
     args = parser.parse_args()
 
     # check wether the c project was build or not
@@ -146,11 +166,19 @@ def main():
         if build() != 0:
             print("could not build the c projext")
 
+    # run the unittest if needed 
+    if args.test:
+        test_simple()
+        exit(0)
+
+    # check if passes
     if not args.c and not args.cf:
         print("please pass c code")
+        exit(1)
 
     if not args.a and not args.af:
         print("please pass asm code")
+        exit(2)
 
     if args.cf:
         with open(args.cf) as f:
