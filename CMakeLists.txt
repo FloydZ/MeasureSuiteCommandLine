@@ -10,6 +10,17 @@ set(DEBUG_FLAGS "-g -DDEBUG -Wall -Wpedantic -pedantic")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${DEBUG_FLAGS}")
 
 include(ExternalProject)
+
+# first build assembly line
+ExternalProject_Add(AssemblyLine_project
+        SOURCE_DIR        ${CMAKE_SOURCE_DIR}/deps/AssemblyLine
+        CONFIGURE_COMMAND cd <SOURCE_DIR> && ./autogen.sh
+        COMMAND           cd <SOURCE_DIR> && ./configure
+        BUILD_COMMAND     cd <SOURCE_DIR> && make
+        INSTALL_COMMAND   "" # sudo make install
+        TEST_COMMAND      ""
+)
+
 ExternalProject_Add(MeasureSuite_project
         SOURCE_DIR        ${CMAKE_SOURCE_DIR}/deps/MeasureSuite
         CONFIGURE_COMMAND ""
@@ -19,14 +30,7 @@ ExternalProject_Add(MeasureSuite_project
         TEST_COMMAND      ""
 )
 
-ExternalProject_Add(AssemblyLine_project
-        SOURCE_DIR        ${CMAKE_SOURCE_DIR}/deps/AssemblyLine
-        CONFIGURE_COMMAND cd <SOURCE_DIR> && ./autogen.sh
-        COMMAND           cd <SOURCE_DIR> && ./configure
-        BUILD_COMMAND     cd <SOURCE_DIR> && make
-        INSTALL_COMMAND   "" # sudo make install
-        TEST_COMMAND      ""
-)
+
 
 include_directories("deps/MeasureSuite/src/include")
 link_directories("deps/MeasureSuite")
