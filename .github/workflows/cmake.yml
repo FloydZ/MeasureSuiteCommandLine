@@ -19,8 +19,8 @@ jobs:
         submodules: recursive
         
     - name: install assemblyline
-      # run: wget https://github.com/0xADE1A1DE/AssemblyLine/releases/download/v1.3.2/assemblyline-1.3.2.tar.gz && tar -xvf assemblyline-1.3.2.tar.gz && cd assemblyline-1.3.2 &&./autogen.sh &&./configure && make  && make install
-      run: wget https://github.com/0xADE1A1DE/AssemblyLine/releases/download/v1.3.2/assemblyline-1.3.2.tar.gz && tar -xvf assemblyline-1.3.2.tar.gz && cd assemblyline-1.3.2 && ./configure && make && make install
+      # run: wget https://github.com/0xADE1A1DE/AssemblyLine/releases/download/v1.3.2/assemblyline-1.3.2.tar.gz && tar -xvf assemblyline-1.3.2.tar.gz && cd assemblyline-1.3.2 &&./autogen.sh &&./configure && make && sudo make install
+      run: wget https://github.com/0xADE1A1DE/AssemblyLine/releases/download/v1.3.2/assemblyline-1.3.2.tar.gz && tar -xvf assemblyline-1.3.2.tar.gz && cd assemblyline-1.3.2 && ./configure && make && sudo make install
 
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
