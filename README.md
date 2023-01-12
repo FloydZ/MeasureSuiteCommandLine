@@ -55,4 +55,13 @@ After everything run successfull you should see the output:
 Python Wrapper:
 ---
 
-TODO
+```python
+c_code = "#include <stdint.h>\nvoid add_two_numbers(uint64_t *o, const uint64_t *i0, const uint64_t *i1) {\n  *o = *i0 + *i1;\n}\n"
+w = Wrapper_MeasureSuiteCommandLine(c_code)
+w.run()
+```
+
+TODOs:
+======
+- [ ] C Lib: wrap the interface to only benchmark a single function
+- [ ] python also compile to .so file, is probably the easiest.

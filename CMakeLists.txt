@@ -40,4 +40,7 @@ link_directories("deps/AssemblyLine/.libs")
 add_executable(main src/main.c)
 target_link_libraries(main measuresuite assemblyline)
 
+add_library(wrapper SHARED src/main.c)
+target_link_libraries(wrapper measuresuite assemblyline)
+
 add_library(all_lib SHARED src/lib.c)

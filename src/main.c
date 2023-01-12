@@ -39,15 +39,24 @@ int bench_lib(const char *c_lib,
 	measuresuite_t ms = NULL;
 
 	const uint64_t bounds[] = {-1};
-	if (ms_measure_init(&ms, arg->arg_width, arg->arg_num_in, arg->arg_num_out,
-	                    arg->chunksize, bounds, c_lib, symbol)) {
+	if (ms_measure_init(&ms,
+						arg->arg_width,
+						arg->arg_num_in,
+						arg->arg_num_out,
+	                    arg->chunksize,
+						bounds,
+						c_lib,
+						symbol)) {
 		error_handling_helper_template_str(ms, "Failed to measure_init. Reason: %s.");
 		printf("error 1\n");
 		return 1;
 	}
 
 	// measure
-	if (ms_measure(ms, (char *) asm_code, (char *) asm_code, arg->batch_size,
+	if (ms_measure(ms, 
+				   (char *) asm_code, 
+				   (char *) asm_code, 
+				   arg->batch_size,
 	               arg->num_batches)) {
 		error_handling_helper_template_str(ms, "Failed to measure. Reason: %s.");
 		printf("error 2\n");
@@ -114,8 +123,12 @@ int compile_c_code(char *lib_path, const char *c_code) {
 ///
 /// \param c code code which will be compile to a library
 /// \param asm code corresponding to the c code
-int bench(const char *c_code, const char *asm_code, const char *symbol,
-          const int arg_width, const int arg_num_in, const int arg_num_out) {
+int bench(const char *c_code,
+		  const char *asm_code,
+		  const char *symbol,
+          const int arg_width,
+		  const int arg_num_in,
+		  const int arg_num_out) {
 	ARG arg;
 	arg.arg_width = arg_width;
 	arg.arg_num_in = arg_num_in;
@@ -124,6 +137,9 @@ int bench(const char *c_code, const char *asm_code, const char *symbol,
 	arg.num_batches = 2;
 	arg.batch_size = 2;
 
+	// just some funny debugging:
+	//printf("%s %s %s\n", c_code, asm_code, symbol);
+	printf("%d %d %d\n", arg_width, arg_num_in, arg_num_out);
 
 	char lib_path[256];
 	if (compile_c_code(lib_path, c_code) != 0) {
