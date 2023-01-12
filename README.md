@@ -65,3 +65,6 @@ TODOs:
 ======
 - [ ] C Lib: wrap the interface to only benchmark a single function
 - [ ] python also compile to .so file, is probably the easiest.
+- [ ] pytest
+- [ ] unify python command line to accept file,str,so in the same flag
+- [ ] Rust interface
