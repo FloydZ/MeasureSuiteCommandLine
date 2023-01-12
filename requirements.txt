@@ -1,5 +1,3 @@
 pathlib
 argparse
-os
-subprocess
 pycparser
