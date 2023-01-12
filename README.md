@@ -68,3 +68,4 @@ TODOs:
 - [ ] pytest
 - [ ] unify python command line to accept file,str,so in the same flag
 - [ ] Rust interface
+- [ ] add license
