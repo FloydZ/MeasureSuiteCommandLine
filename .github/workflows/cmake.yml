@@ -17,6 +17,11 @@ jobs:
     - uses: actions/checkout@v3
       with:
         submodules: recursive
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+    - run: pip install -r requirements.txt
         
     - name: install assemblyline
       # run: wget https://github.com/0xADE1A1DE/AssemblyLine/releases/download/v1.3.2/assemblyline-1.3.2.tar.gz && tar -xvf assemblyline-1.3.2.tar.gz && cd assemblyline-1.3.2 && ./autogen.sh && ./configure --prefix=/usr && make && sudo make install
