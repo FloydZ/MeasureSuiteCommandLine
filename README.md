@@ -60,12 +60,3 @@ c_code = "#include <stdint.h>\nvoid add_two_numbers(uint64_t *o, const uint64_t 
 w = Wrapper_MeasureSuiteCommandLine(c_code)
 w.run()
 ```
-
-TODOs:
-======
-- [ ] C Lib: wrap the interface to only benchmark a single function
-- [ ] python also compile to .so file, is probably the easiest.
-- [ ] pytest
-- [ ] unify python command line to accept file,str,so in the same flag
-- [ ] Rust interface
-- [ ] add license
