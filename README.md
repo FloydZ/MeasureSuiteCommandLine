@@ -11,12 +11,15 @@ Run:
 ```bash
 git clone --recursive https://github.com/FloydZ/MeasureSuiteCommandLine
 cd MeasureSuiteCommandLine
-mkdir -p build
-cd build
-cmake ..
-make
+pip install -r requirements.txt
+./build/sh
 ```
-and that should do it.
+and that should do it. If you have `nix` install you can alternatlvly run:
+```bash
+git clone --recursive https://github.com/FloydZ/MeasureSuiteCommandLine
+cd MeasureSuiteCommandLine
+nix-shell
+```
 
 C Interface
 ----

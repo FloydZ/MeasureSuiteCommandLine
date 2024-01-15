@@ -45,10 +45,10 @@ link_directories("deps/MeasureSuite/lib")
 link_directories("deps/AssemblyLine/.libs")
 
 
-add_executable(main src/main.c)
+add_executable(main MeasureSuiteCommandLine/main.c)
 target_link_libraries(main measuresuite assemblyline)
 
-add_library(wrapper SHARED src/main.c)
+add_library(wrapper SHARED MeasureSuiteCommandLine/main.c)
 target_link_libraries(wrapper measuresuite assemblyline)
 
-add_library(all_lib SHARED src/lib.c)
+add_library(all_lib SHARED MeasureSuiteCommandLine/lib.c)

@@ -6,4 +6,4 @@ compile_commands.json
 Session.vim
 cmake-build-release/
 cmake-build-debug/
-
+*__pycache__/

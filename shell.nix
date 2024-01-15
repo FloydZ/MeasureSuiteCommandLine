@@ -1,26 +1,26 @@
 { pkgs ? import <nixpkgs> {} }:
 let
-  my-python = pkgs.python3;
-  python-with-my-packages = my-python.withPackages (p: with p; [
-	pycparser
-  ]);
+  mach-nix = import (builtins.fetchGit {
+    url = "https://github.com/DavHau/mach-nix";
+    ref = "refs/tags/3.5.0";
+  }) {};
+  pyEnv = mach-nix.mkPython rec {
+    providers._default = "wheel,conda,nixpkgs,sdist";
+    requirements = builtins.readFile ./requirements.txt;
+  };
 in
-pkgs.mkShell {
-  buildInputs = [
-    pkgs.clang
-    pkgs.gcc
-    pkgs.calc   # needed for `msc` and `ms`
-    pkgs.jq     # needed for `msc` and `ms`
-    pkgs.pkg-config # needed to compile `MeasureSuite` with `AssemblyLine`
-    python-with-my-packages
+mach-nix.nixpkgs.mkShell {
+  buildInputs = with pkgs; [
+    pyEnv
+
+    clang
+    gcc
+    calc   # needed for `msc` and `ms`
+    jq     # needed for `msc` and `ms`
+    pkg-config # needed to compile `MeasureSuite` with `AssemblyLine`
   ];
 
-  # postShellHook = ''
-  #   # python
-  #   export PYTHONPATH=${python-with-my-packages}/${python-with-my-packages.sitePackages}
-  # '';
-
   shellHook = ''
-    ./build.sh
+    # ./build.sh
   '';
 }
