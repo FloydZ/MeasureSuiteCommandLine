@@ -1,0 +1,15 @@
+diff --git a/Makefile b/Makefile
+index a35db1b..31eeca5 100644
+--- a/Makefile
++++ b/Makefile
+@@ -20,6 +20,10 @@ LDLIBS     += $(shell pkg-config --libs assemblyline)
+ CPPFLAGS   += $(shell pkg-config --cflags assemblyline) -DUSE_ASSEMBLYLINE
+ endif
+ 
++#PATCH
++LDLIBS		+=-L../AssemblyLine/.libs -l:libassemblyline.a
++CPPDLIBS	+=-I../AssemblyLine/src -DUSE_ASSEMBLYLINE
++
+ ## Enable debug with make DEBUG=1
+ DEBUG ?= 0
+ ifneq ($(DEBUG), 0)

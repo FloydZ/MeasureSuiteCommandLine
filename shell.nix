@@ -8,12 +8,19 @@ in
 pkgs.mkShell {
   buildInputs = [
     pkgs.clang
-	pkgs.gcc
+    pkgs.gcc
+    pkgs.calc   # needed for `msc` and `ms`
+    pkgs.jq     # needed for `msc` and `ms`
+    pkgs.pkg-config # needed to compile `MeasureSuite` with `AssemblyLine`
     python-with-my-packages
   ];
 
+  # postShellHook = ''
+  #   # python
+  #   export PYTHONPATH=${python-with-my-packages}/${python-with-my-packages.sitePackages}
+  # '';
+
   shellHook = ''
-	# python
-	PYTHONPATH=${python-with-my-packages}/${python-with-my-packages.sitePackages}
+    ./build.sh
   '';
 }

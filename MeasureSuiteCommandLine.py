@@ -3,10 +3,13 @@ import argparse
 from pycparser import c_ast, parse_file
 import tempfile
 from ctypes import *
+from typing import Union
 from subprocess import Popen, PIPE, STDOUT
 import pathlib
 import os
 import json
+import logging
+from pathlib import Path
 
 BUILD_FOLDER = "/build"
 DEBUG = True
@@ -47,13 +50,17 @@ def build():
 
 def check_if_already_build():
     """
-    checks wether `build` was called or not.
+    checks whether `build` was called or not.
     """
     path = str(pathlib.Path().resolve()) + BUILD_FOLDER
     return os.path.exists(path)
 
 
 class Wrapper_MeasureSuiteCommandLine:
+    """
+    wrapper around the C wrapper I wrote. Its not a wrapper around the 
+    `libmeasuresuite.so` library.
+    """
     def __init__(self, c_code: str, asm_code: str="", target: str=""):
         """
         """
@@ -101,7 +108,8 @@ class Wrapper_MeasureSuiteCommandLine:
                         "names:": names,
                         "types": types,
                         "const": const
-                        }
+                    }
+
         # TODO this looks wrong
         f = tempfile.NamedTemporaryFile(delete=False)
         name = f.name
@@ -141,6 +149,8 @@ class Wrapper_MeasureSuiteCommandLine:
     def compile(self):
         """
         if the asm code is not passed, this function will generate it.
+        
+        TODO NOTE about the inputs (asm syntax, etc )
 
         :return 0 on success
                 1 on any error
@@ -159,6 +169,7 @@ class Wrapper_MeasureSuiteCommandLine:
 
         p.wait()
         if p.returncode != 0:
+            assert p.stdout
             print("ERROR could not assemble:", p.returncode,
                   p.stdout.read().decode("utf-8"))
             return p.returncode
@@ -231,6 +242,8 @@ class Wrapper_MeasureSuiteCommandLine:
                   preexec_fn=os.setsid, cwd=path)
         p.wait()
     
+        assert p.stdout
+
         # read the output
         data = p.stdout.read()
         data = data.decode("ascii")
@@ -255,6 +268,105 @@ class Wrapper_MeasureSuiteCommandLine:
         #  }
         jdata = json.loads(data)
         return jdata
+
+
+class Wrapper_MSC:
+    """
+    wrapper around the `msc` binary
+    """
+
+    BINARY_PATH = "deps/MeasureSuite/bin/msc"
+    def __init__(self):
+        """
+        """
+        pass
+    
+    def execute(self, command: Union[Union[str, Path], 
+                                     Union[list[str], list[Path]]]):
+        """
+        execute a msc command 
+
+        :param command: can be either a single file or a list of files
+        :return:
+
+        """
+        # convert everything into a [str]
+        if type(command) is str:
+            command = [command]
+        
+        assert type(command) == list
+        for i in range(len(command)):
+            if type(command[i]) == Path:
+                command[i] = command[i].abspath()
+
+        cmd = [self.BINARY_PATH] + command
+        for c in cmd:
+            assert type(c) == str
+
+        logging.debug(cmd)
+        p = Popen(cmd, stdout=PIPE, stderr=STDOUT, universal_newlines=True, text=True, encoding="utf-8")
+        p.wait()
+        assert p.stdout
+
+        if p.returncode != 0:
+            logging.error("Error: MSC: couldnt execute: " + " ".join(cmd))
+            return 
+
+    def __version__(self):
+        """
+        """
+        pass
+
+
+class Wrapper_MS:
+    """
+    wrapper around the `ms` binary
+    """
+
+    BINARY_PATH = "deps/MeasureSuite/ms"
+    def __init__(self):
+        """
+        """
+        pass
+    
+    def execute(self):
+        """
+        execute a ms command 
+        """
+
+    def __version__(self):
+        """
+        """
+        pass
+
+
+
+class Wrapper_libmeasuresuite:
+    """
+    wrapper around the `libmeasuresuite.{so/a/dyn}` library.
+    """
+    def __init__(self):
+        """
+        """
+        pass
+
+
+
+def cli_test(): 
+    """
+    test command:
+
+python MeasureSuiteCommandLine.py -c "#include <stdint.h>
+void add_two_numbers(uint64_t *o, const uint64_t *i0, const uint64_t *i1) {
+        *o = *i0 + *i1;
+}" -a "mov rax, [rsi]
+add rax, [rdx]
+mov [rdi], rax
+ret"
+    """
+    pass
+
+
 
 
 def test():
@@ -297,18 +409,12 @@ def main():
     parser.add_argument('-cf', required=False, type=str, help='c code file')
     parser.add_argument('-af', required=False, type=str, help='asm code file')
     parser.add_argument('-t', required=False, type=str, help='target')
-    parser.add_argument('--test', action='store_true')
     args = parser.parse_args()
 
-    # check wether the c project was build or not
+    # check whether the c project was build or not
     if not check_if_already_build():
         if build() != 0:
             print("could not build the c projext")
-
-    # run the unittest if needed 
-    if args.test:
-        test_simple()
-        exit(0)
 
     # check if passes
     if not args.c and not args.cf:
@@ -333,16 +439,5 @@ def main():
     print(jdata)
 
 if __name__ == '__main__':
-    """
-    test command:
-
-python MeasureSuiteCommandLine.py -c "#include <stdint.h>
-void add_two_numbers(uint64_t *o, const uint64_t *i0, const uint64_t *i1) {
-        *o = *i0 + *i1;
-}" -a "mov rax, [rsi]
-add rax, [rdx]
-mov [rdi], rax
-ret"
-    """
-
     test()
+    main()

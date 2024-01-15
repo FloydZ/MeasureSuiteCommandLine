@@ -1,12 +1,20 @@
-cmake_minimum_required(VERSION 3.20.1)
+cmake_minimum_required(VERSION 3.5)
 project(MeasureSuiteCommandLine)
 
-# set some appropiated flags and configs
+# set some appropriated flags and configurations
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_VERBOSE_MAKEFILE ON)
-set(DEBUG_FLAGS "-g -DDEBUG -Wall -Wpedantic -pedantic")
 
+# needed for nvim
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
+if(CMAKE_EXPORT_COMPILE_COMMANDS)
+    set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES
+            ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
+endif()
+
+# compile flags
+set(DEBUG_FLAGS "-g -DDEBUG -Wall -Wpedantic -pedantic")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${DEBUG_FLAGS}")
 
 include(ExternalProject)
@@ -31,9 +39,9 @@ ExternalProject_Add(MeasureSuite_project
 )
 
 
-
-include_directories("deps/MeasureSuite/src/include")
-link_directories("deps/MeasureSuite")
+include_directories("deps/MeasureSuite/lib/src/include")
+include_directories("deps/MeasureSuite/lib/src")
+link_directories("deps/MeasureSuite/lib")
 link_directories("deps/AssemblyLine/.libs")
 
 
