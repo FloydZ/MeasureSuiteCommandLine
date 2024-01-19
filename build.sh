@@ -2,6 +2,7 @@
 
 # build assemblyline
 cd deps/AssemblyLine
+./autogen.sh
 ./configure
 make 
 cd ../../

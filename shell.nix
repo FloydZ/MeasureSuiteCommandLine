@@ -17,7 +17,12 @@ mach-nix.nixpkgs.mkShell {
     gcc
     calc   # needed for `msc` and `ms`
     jq     # needed for `msc` and `ms`
-    pkg-config # needed to compile `MeasureSuite` with `AssemblyLine`
+
+    # needed to compile `MeasureSuite` with `AssemblyLine`
+    pkg-config 
+    automake
+    autoconf
+    libtool
   ];
 
   shellHook = ''

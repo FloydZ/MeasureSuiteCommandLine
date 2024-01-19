@@ -1,4 +1,5 @@
 .cache/
+*.o
 build/
 .local-history/
 compile_commands.json
