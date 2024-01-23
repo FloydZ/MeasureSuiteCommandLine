@@ -1,5 +1,5 @@
 diff --git a/Makefile b/Makefile
-index a35db1b..31eeca5 100644
+index a35db1b..8857497 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -20,6 +20,10 @@ LDLIBS     += $(shell pkg-config --libs assemblyline)
@@ -8,8 +8,22 @@ index a35db1b..31eeca5 100644
  
 +#PATCH
 +LDLIBS		+=-L../AssemblyLine/.libs -l:libassemblyline.a
-+CPPDLIBS	+=-I../AssemblyLine/src -DUSE_ASSEMBLYLINE
++CPPFLAGS	+=-I../AssemblyLine/src -DUSE_ASSEMBLYLINE
 +
  ## Enable debug with make DEBUG=1
  DEBUG ?= 0
  ifneq ($(DEBUG), 0)
+diff --git a/lib/Makefile b/lib/Makefile
+index 6ec2107..c0de09e 100644
+--- a/lib/Makefile
++++ b/lib/Makefile
+@@ -31,6 +31,9 @@ LDLIBS     += $(shell pkg-config --libs assemblyline)
+ CPPFLAGS   += $(shell pkg-config --cflags assemblyline) -DUSE_ASSEMBLYLINE
+ endif
+ 
++LDLIBS		+=-L../../AssemblyLine/.libs -l:libassemblyline.a
++CPPFLAGS	+=-I../../AssemblyLine/src -DUSE_ASSEMBLYLINE
++
+ DEBUG ?= 0
+ ifneq ($(DEBUG), 0)
+ CFLAGS += -g -DENABLE_DEBUG

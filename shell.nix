@@ -23,6 +23,7 @@ mach-nix.nixpkgs.mkShell {
     automake
     autoconf
     libtool
+    nasm      # needed for testing
   ];
 
   shellHook = ''

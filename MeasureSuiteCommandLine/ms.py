@@ -1,25 +1,28 @@
 import logging
 import json
 import os
+import tempfile
 from pathlib import Path
 from typing import Union
 from subprocess import Popen, PIPE, STDOUT
+from types import SimpleNamespace
+
 
 class result:
     type_: str
+
 
 class PerformaceResult:
     class stats:
         numFunctions: int
         runtime: float
-        incorrect: int 
+        incorrect: int
         timer: str
+
     functions: list[result]
     cycles: list[list[float]]
     medians: list[float]
     avgs: list[float]
-
-from types import SimpleNamespace
 
 
 
@@ -29,6 +32,9 @@ class Wrapper_MS:
     """
 
     BINARY_PATH = "deps/MeasureSuite/ms"
+    OPT_FLAGS = ["-O3", "-march=native"]
+    CC = "cc"
+
     def __init__(self, files: list[Union[str, Path]]):
         """
         Measures all provided FILE's, by calling assumed function signature 
@@ -36,28 +42,63 @@ class Wrapper_MS:
 
         """
         self.__symbol = ""
+        self.__supported_file_types = [".so", ".o", ".c", ".asm", ".s"]
         self.__cycles = []
         self.__cmd = []
         self.__files = files
         for i, file in enumerate(files):
-            if type(file) == Path:
+            if type(file) is Path:
                 self.__files[i] = file.absolute()
 
+        for i, file in enumerate(self.__files):
+            _, file_extension = os.path.splitext(file)
+            if file_extension not in self.__supported_file_types:
+                logging.error("Dont know this file type: " + file_extension)
+                return
+
+            if file_extension == ".c":
+                outfile = tempfile.NamedTemporaryFile(suffix=".o").name
+                if not self.__compile(outfile, file):
+                    logging.error("could not compile: " + file)
+                    return
+
+                self.__files[i] = outfile
+
         if len(self.__files) < 1:
-            logging.error("please pass atleast a single file to the class")
-    
+            logging.error("please pass at least a single file to the class")
+
+    def __compile(self, outfile: str, infile: str):
+        """
+        simple wrapper around `cc` to compile a given c file.
+        """
+        flags = ["-o", outfile, "-c", infile]
+        cmd = [Wrapper_MS.CC] + flags + Wrapper_MS.OPT_FLAGS
+        logging.debug(cmd)
+        p = Popen(cmd, stdout=PIPE, stderr=STDOUT, universal_newlines=True, text=True, encoding="utf-8")
+        p.wait()
+        assert p.stdout
+
+        data = p.stdout.read()
+        data = str(data).replace("b'", "").replace("\\n'", "").lstrip()
+        print(data)
+        if p.returncode != 0:
+            logging.error("MS: could not compile: " + " ".join(cmd))
+            return False
+
+        return True
+
     def __execute(self):
         """
         executes the internal command
         :return false on error
         """
         if len(self.__files) < 1:
-            logging.error("please pass atleast a single file to the class")
+            logging.error("please pass at least a single file to the class")
             return False
 
         cmd = [self.BINARY_PATH] + self.__cmd + self.__files
         for c in cmd:
-            assert type(c) == str
+            assert type(c) is str
 
         # make sure that, given a `.so` library that a symbol is given:
         for file in self.__files:
@@ -65,15 +106,16 @@ class Wrapper_MS:
             if file_extension == ".so" and len(self.__symbol) == 0:
                 logging.error(".so library but no symbol given")
                 return False
-        
+
         logging.debug(cmd)
         p = Popen(cmd, stdout=PIPE, stderr=STDOUT, universal_newlines=True, text=True, encoding="utf-8")
         p.wait()
         assert p.stdout
 
         if p.returncode != 0:
-            logging.error("Error: MS: couldnt execute: " + " ".join(cmd))
-            return 
+            logging.error("MS: couldn't execute: " + " ".join(cmd))
+            print(p.stdout.read())
+            return
 
         data = p.stdout.read()
         data = str(data).replace("b'", "").replace("\\n'", "").lstrip()
@@ -83,13 +125,17 @@ class Wrapper_MS:
         self.__cycles = data.cycles
         assert len(self.__cycles) == len(self.__files)
 
-        data.avgs = [sum(a)/len(a) for a in self.__cycles]
-        data.medians = [sorted(a)[len(a)//2] for a in self.__cycles]
+        data.avgs = [sum(a) / len(a) for a in self.__cycles]
+        data.medians = [sorted(a)[len(a) // 2] for a in self.__cycles]
 
         print(data)
+        return data
 
     def run(self):
-        self.__execute()
+        """
+
+        """
+        return self.__execute()
 
     def width(self, number: int):
         """
@@ -98,8 +144,9 @@ class Wrapper_MS:
         if number < 0:
             logging.error(number, "is negative")
             return
-        
+
         self.__cmd.append("--width " + str(number))
+
     def output(self, output: int):
         """
         Number of out-arrays. Defaults to 2.
@@ -107,7 +154,7 @@ class Wrapper_MS:
         if output < 0:
             logging.error(output, "is negative")
             return
-        
+
         self.__cmd.append("--out " + str(output))
 
     def input(self, input: int):
@@ -117,7 +164,7 @@ class Wrapper_MS:
         if input < 0:
             logging.error(input, "is negative")
             return
-        
+
         self.__cmd.append("--in " + str(input))
 
     def num_batches(self, number: int):
@@ -128,7 +175,7 @@ class Wrapper_MS:
         if number < 0:
             logging.error(number, "is negative")
             return
-        
+
         self.__cmd.append("--num_batches " + str(number))
 
     def batch_size(self, batch: int):
@@ -158,4 +205,3 @@ class Wrapper_MS:
         """
         """
         pass
-
