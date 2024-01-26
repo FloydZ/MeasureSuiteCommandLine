@@ -2,3 +2,4 @@ pathlib
 argparse
 pycparser
 pytest
+AssemblyLinePython @ git+https://github.com/FloydZ/AssemblyLinePython@master

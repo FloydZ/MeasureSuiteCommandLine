@@ -1,0 +1,15 @@
+README.md
+setup.cfg
+setup.py
+MeasureSuiteCommandLine/__init__.py
+MeasureSuiteCommandLine/libmeasuresuite.py
+MeasureSuiteCommandLine/ms.py
+MeasureSuiteCommandLine/msc.py
+MeasureSuiteCommandLine/wrapper.py
+MeasureSuiteCommandLine.egg-info/PKG-INFO
+MeasureSuiteCommandLine.egg-info/SOURCES.txt
+MeasureSuiteCommandLine.egg-info/dependency_links.txt
+MeasureSuiteCommandLine.egg-info/requires.txt
+MeasureSuiteCommandLine.egg-info/top_level.txt
+test/test_ms.py
+test/test_msc.py
