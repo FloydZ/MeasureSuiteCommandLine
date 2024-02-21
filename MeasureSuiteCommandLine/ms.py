@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+""" wrapper around ms """
 import logging
 import json
 import os
@@ -8,25 +10,28 @@ from subprocess import Popen, PIPE, STDOUT
 from types import SimpleNamespace
 
 
-class result:
+class Result:
+    """ kp """
     type_: str
 
 
 class PerformaceResult:
-    class stats:
+    """ still wip """
+    class Stats:
+        """ still wip """
         numFunctions: int
         runtime: float
         incorrect: int
         timer: str
 
-    functions: list[result]
+    functions: list[Result]
     cycles: list[list[float]]
     medians: list[float]
     avgs: list[float]
 
 
 
-class Wrapper_MS:
+class Ms:
     """
     wrapper around the `ms` binary
     """
@@ -47,19 +52,19 @@ class Wrapper_MS:
         self.__cmd = []
         self.__files = files
         for i, file in enumerate(files):
-            if type(file) is Path:
+            if isinstance(file, Path):
                 self.__files[i] = file.absolute()
 
         for i, file in enumerate(self.__files):
             _, file_extension = os.path.splitext(file)
             if file_extension not in self.__supported_file_types:
-                logging.error("Dont know this file type: " + file_extension)
+                logging.error("Dont know this file type: %s", file_extension)
                 return
 
             if file_extension == ".c":
                 outfile = tempfile.NamedTemporaryFile(suffix=".o").name
-                if not self.__compile(outfile, file):
-                    logging.error("could not compile: " + file)
+                if not self.compile(outfile, file):
+                    logging.error("could not compile: %s", file)
                     return
 
                 self.__files[i] = outfile
@@ -67,14 +72,15 @@ class Wrapper_MS:
         if len(self.__files) < 1:
             logging.error("please pass at least a single file to the class")
 
-    def __compile(self, outfile: str, infile: str):
+    def compile(self, outfile: str, infile: str):
         """
         simple wrapper around `cc` to compile a given c file.
         """
         flags = ["-o", outfile, "-c", infile]
-        cmd = [Wrapper_MS.CC] + flags + Wrapper_MS.OPT_FLAGS
+        cmd = [Ms.CC] + flags + Ms.OPT_FLAGS
         logging.debug(cmd)
-        p = Popen(cmd, stdout=PIPE, stderr=STDOUT, universal_newlines=True, text=True, encoding="utf-8")
+        p = Popen(cmd, stdout=PIPE, stderr=STDOUT, universal_newlines=True,
+                  text=True, encoding="utf-8")
         p.wait()
         assert p.stdout
 
@@ -82,12 +88,12 @@ class Wrapper_MS:
         data = str(data).replace("b'", "").replace("\\n'", "").lstrip()
         print(data)
         if p.returncode != 0:
-            logging.error("MS: could not compile: " + " ".join(cmd))
+            logging.error("MS: could not compile: %s", " ".join(cmd))
             return False
 
         return True
 
-    def __execute(self):
+    def execute(self):
         """
         executes the internal command
         :return false on error
@@ -98,7 +104,7 @@ class Wrapper_MS:
 
         cmd = [self.BINARY_PATH] + self.__cmd + self.__files
         for c in cmd:
-            assert type(c) is str
+            assert isinstance(c, str)
 
         # make sure that, given a `.so` library that a symbol is given:
         for file in self.__files:
@@ -108,14 +114,15 @@ class Wrapper_MS:
                 return False
 
         logging.debug(cmd)
-        p = Popen(cmd, stdout=PIPE, stderr=STDOUT, universal_newlines=True, text=True, encoding="utf-8")
+        p = Popen(cmd, stdout=PIPE, stderr=STDOUT, universal_newlines=True,
+                  text=True, encoding="utf-8")
         p.wait()
         assert p.stdout
 
         if p.returncode != 0:
-            logging.error("MS: couldn't execute: " + " ".join(cmd))
+            logging.error("MS: couldn't execute: %s", " ".join(cmd))
             print(p.stdout.read())
-            return
+            return False
 
         data = p.stdout.read()
         data = str(data).replace("b'", "").replace("\\n'", "").lstrip()
@@ -132,15 +139,11 @@ class Wrapper_MS:
         return data
 
     def run(self):
-        """
-
-        """
-        return self.__execute()
+        """simple helper around execute"""
+        return self.execute()
 
     def width(self, number: int):
-        """
-        Number of elements in each array. Defaults to 10.
-        """
+        """ Number of elements in each array. Defaults to 10. """
         if number < 0:
             logging.error(number, "is negative")
             return
@@ -157,12 +160,12 @@ class Wrapper_MS:
 
         self.__cmd.append("--out " + str(output))
 
-    def input(self, input: int):
+    def input(self, inp: int):
         """
         Number of in-arrays. Defaults to 2.
         """
-        if input < 0:
-            logging.error(input, "is negative")
+        if inp < 0:
+            logging.error(inp, "is negative")
             return
 
         self.__cmd.append("--in " + str(input))
@@ -199,9 +202,9 @@ class Wrapper_MS:
         self.__cmd.append("--symbol " + symbol)
 
     def check(self):
+        """ wrapper """
         self.__cmd.append("--check")
 
     def __version__(self):
-        """
-        """
-        pass
+        """ returns the version """
+        return "1.0.0"

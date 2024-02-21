@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+""" test """
+
 import logging
 import os
 from pathlib import Path
@@ -5,7 +8,7 @@ from typing import Union
 from subprocess import Popen, PIPE, STDOUT
 
 
-class Wrapper_MSC:
+class Msc:
     """
     wrapper around the `msc` binary
     """
@@ -16,19 +19,18 @@ class Wrapper_MSC:
         """
         for f in files:
             ff = f
-            if type(f) == Path:
+            if isinstance(f, Path):
                 ff = f.absolute()
 
-            assert type(ff) == str
+            assert isinstance(ff, str)
             if not os.path.isfile(ff):
-                logging.error("not a file: " + ff)
+                logging.error("not a file: %s", ff)
                 return
 
         self.files = files
-        self.__execute(files)
+        self.execute(files)
 
-    
-    def __execute(self, command: Union[list[str], list[Path]]):
+    def execute(self, command: Union[list[str], list[Path]]):
         """
         Internal function. Do call it. Call `run` instead
 
@@ -36,25 +38,26 @@ class Wrapper_MSC:
         :return:
 
         """
-        assert type(command) == list
+        assert isinstance(command, list)
         for i in range(len(command)):
-            if type(command[i]) == Path:
+            if isinstance(command[i], Path):
                 command[i] = command[i].abspath()
 
         cmd = [self.BINARY_PATH] + command
         for c in cmd:
-            assert type(c) == str
-        
+            assert isinstance(c, str)
+
         logging.debug(cmd)
         print(cmd)
-        p = Popen(cmd, stdout=PIPE, stderr=STDOUT, universal_newlines=True, text=True, encoding="utf-8")
+        p = Popen(cmd, stdout=PIPE, stderr=STDOUT, universal_newlines=True,
+                  text=True, encoding="utf-8")
         p.wait()
         assert p.stdout
 
         print(p.returncode)
         if p.returncode != 0:
-            logging.error("Error: MSC: couldnt execute: " + " ".join(cmd))
-            return 
+            logging.error("Error: MSC: couldnt execute: %s", " ".join(cmd))
+            return
 
         data = p.stdout.readlines()
         data = [str(a).replace("b'", "")
@@ -64,5 +67,6 @@ class Wrapper_MSC:
 
     def __version__(self):
         """
+        returns the version.
         """
-        pass
+        return "1.0.0"
