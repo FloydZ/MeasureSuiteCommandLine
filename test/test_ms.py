@@ -1,4 +1,4 @@
-from MeasureSuiteCommandLine import Wrapper_MS
+from MeasureSuiteCommandLine import Ms
 
 
 def test_simple():
@@ -6,23 +6,24 @@ def test_simple():
     test only object file
     """
     files = ["test/test.o", "test/test2.o"]
-    w = Wrapper_MS(files)
-    print(w.run())
+    w = Ms(files).run()
+    print(w)
 
 
 def test_compile():
     """
-    test that only i
+    test the compiler
     """
     files = ["test/test.c", "test/test2.c"]
-    w = Wrapper_MS(files)
-    print(w.run())
+    w = Ms(files).run()
+    print(w)
 
 
 def test_assembly():
     """
-    test the 
+    test the assembler 
     """
     files = ["test/test.asm", "test/test2.asm"]
-    w = Wrapper_MS(files)
-    print(w.run())
+    w = Ms(files).run()
+    assert w
+    print(w)

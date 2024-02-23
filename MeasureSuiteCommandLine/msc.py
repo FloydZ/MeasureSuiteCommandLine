@@ -13,7 +13,7 @@ class Msc:
     wrapper around the `msc` binary
     """
 
-    BINARY_PATH = "./deps/MeasureSuite/bin/msc"
+    BINARY_PATH = "deps/MeasureSuite/bin/msc"
     def __init__(self, files: Union[list[str], list[Path]]):
         """
         """
@@ -28,9 +28,8 @@ class Msc:
                 return
 
         self.files = files
-        self.execute(files)
 
-    def execute(self, command: Union[list[str], list[Path]]):
+    def execute(self):
         """
         Internal function. Do call it. Call `run` instead
 
@@ -38,32 +37,31 @@ class Msc:
         :return:
 
         """
+        command = self.files
         assert isinstance(command, list)
         for i in range(len(command)):
             if isinstance(command[i], Path):
                 command[i] = command[i].abspath()
 
-        cmd = [self.BINARY_PATH] + command
+        cmd = ["sh", self.BINARY_PATH] + command
         for c in cmd:
             assert isinstance(c, str)
 
-        logging.debug(cmd)
-        print(cmd)
         p = Popen(cmd, stdout=PIPE, stderr=STDOUT, universal_newlines=True,
                   text=True, encoding="utf-8")
         p.wait()
         assert p.stdout
 
-        print(p.returncode)
-        if p.returncode != 0:
-            logging.error("Error: MSC: couldnt execute: %s", " ".join(cmd))
-            return
+        if p.returncode != 1:
+            logging.error("Error: MSC: %s couldnt execute: %s", " ".join(cmd),
+                          p.stdout.read())
+            return False
 
         data = p.stdout.readlines()
         data = [str(a).replace("b'", "")
                       .replace("\\n'", "")
                       .lstrip() for a in data]
-        print(data)
+        return data
 
     def __version__(self):
         """

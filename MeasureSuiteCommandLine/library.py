@@ -56,7 +56,7 @@ def check_if_already_build():
     return os.path.exists(path)
 
 
-class Wrapper_MeasureSuiteCommandLine:
+class Library:
     """
     wrapper around the C wrapper I wrote. Its not a wrapper around the 
     `libmeasuresuite.so` library.
@@ -304,7 +304,7 @@ def main():
             args.a = f.read()
 
     target, arg_width, arg_num_in, arg_num_out = parse_c_code(args.c, args.t)
-    jdata = Wrapper_MeasureSuiteCommandLine.profile(args.c, args.a, target, arg_width, arg_num_in,
+    jdata = Library.profile(args.c, args.a, target, arg_width, arg_num_in,
                     arg_num_out)
     print(jdata)
 

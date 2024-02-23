@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """ wrapper around ms """
+
 import logging
 import json
 import os
@@ -56,6 +57,8 @@ class Ms:
                 self.__files[i] = file.absolute()
 
         for i, file in enumerate(self.__files):
+            assert isinstance(file, str)
+
             _, file_extension = os.path.splitext(file)
             if file_extension not in self.__supported_file_types:
                 logging.error("Dont know this file type: %s", file_extension)
@@ -118,13 +121,13 @@ class Ms:
                   text=True, encoding="utf-8")
         p.wait()
         assert p.stdout
+        data = p.stdout.read()
 
         if p.returncode != 0:
-            logging.error("MS: couldn't execute: %s", " ".join(cmd))
-            print(p.stdout.read())
+            print(data)
+            logging.error("MS: %s, couldn't execute: %s", data, " ".join(cmd))
             return False
 
-        data = p.stdout.read()
         data = str(data).replace("b'", "").replace("\\n'", "").lstrip()
         data = json.loads(data, object_hook=lambda d: SimpleNamespace(**d))
         data.cycles = [[float(b) for b in a] for a in data.cycles]
