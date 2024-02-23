@@ -1,8 +1,8 @@
 Wrapper around [MeasureSuite](https://github.com/0xADE1A1DE/MeasureSuite).
-In fact there are two wrappers. First a simple C commandline interface, which
-allows you to pass `C` code and the coresponding `asm` block. The programm then
+In fact there are two wrappers. First a simple C command line interface, which
+allows you to pass `C` code and the corresponding `asm` block. The program then
 compiles automatically the needed shared library for `MeasureSuite` and runs
-it. This simple commandline interface is then again wrapped in a python library
+it. This simple command line interface is then again wrapped in a python library
 which allows for an even easier usage.
 
 Build:
@@ -12,9 +12,9 @@ Run:
 git clone --recursive https://github.com/FloydZ/MeasureSuiteCommandLine
 cd MeasureSuiteCommandLine
 pip install -r requirements.txt
-./build/sh
+./build.sh
 ```
-and that should do it. If you have `nix` install you can alternatlvly run:
+and that should do it. If you have `nix` install you can alternatively run:
 ```bash
 git clone --recursive https://github.com/FloydZ/MeasureSuiteCommandLine
 cd MeasureSuiteCommandLine
@@ -23,7 +23,7 @@ nix-shell
 
 C Interface
 ----
-After you build the libray a binary `main` is available in `build`. Use it like
+After you build the library a binary `main` is available in `build`. Use it like
 so:
 ```bash
 ./main "#include <stdint.h>
@@ -36,7 +36,7 @@ ret
 "
 ```
 
-After everything run successfull you should see the output:
+After everything run successful you should see the output:
 ```json    
 {
 "stats":
@@ -60,6 +60,6 @@ Python Wrapper:
 
 ```python
 c_code = "#include <stdint.h>\nvoid add_two_numbers(uint64_t *o, const uint64_t *i0, const uint64_t *i1) {\n  *o = *i0 + *i1;\n}\n"
-w = Wrapper_MeasureSuiteCommandLine(c_code)
+w = Library(c_code)
 w.run()
 ```
