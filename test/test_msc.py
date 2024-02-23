@@ -7,6 +7,7 @@ def test_version():
     w = Msc([]).__version__()
     assert w
 
+
 def test_simple():
     """
     test the simplest version

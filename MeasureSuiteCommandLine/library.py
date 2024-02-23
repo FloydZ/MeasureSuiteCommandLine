@@ -75,7 +75,7 @@ class Library:
             return
 
         if len(asm_code) == 0:
-            if self.compile():
+            if not self.compile():
                 return
         
         self.target = target
@@ -201,11 +201,10 @@ class Library:
         self.asm_code = "".join(lines)
 
         if DEBUG:
+            print("asm code")
             print(self.asm_code)
-            print()
-            input()
 
-        return 0
+        return True
 
     def run(self):
         """
@@ -309,5 +308,4 @@ def main():
     print(jdata)
 
 if __name__ == '__main__':
-    test()
     main()
