@@ -6,6 +6,11 @@ asm_code = "mov rax, [rsi]\nadd rax, [rdx]\nmov [rdi], rax\nret"
 target = "add_two_numbers"
 
 
+def test_run_library_asm():
+    w = Library(c_code, target=target)
+    w.run_library()
+
+
 def cli_test(): 
     """
     test command:

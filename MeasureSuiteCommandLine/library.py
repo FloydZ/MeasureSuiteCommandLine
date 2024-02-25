@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import ctypes
 from pycparser import c_ast, parse_file
 import tempfile
 from ctypes import *
@@ -9,11 +10,15 @@ import pathlib
 import os
 import json
 import logging
+from enum import Enum
 from pathlib import Path
 
 BUILD_FOLDER = "/build"
 DEBUG = True
 
+class InputType(Enum):
+    ASM = 1,
+    C = 2,
 
 def build():
     """
@@ -61,27 +66,30 @@ class Library:
     wrapper around the C wrapper I wrote. Its not a wrapper around the 
     `libmeasuresuite.so` library.
     """
-    def __init__(self, c_code: str, asm_code: str="", target: str=""):
+    MEASURESUITELIBRARY = "deps/MeasureSuite/lib/libmeasuresuite.so"
+
+    def __init__(self, c_code: str = "", asm_code: str = "", target: str = ""):
         """
+        TODO: pass number of arguments, type of arguments.
+        TODO: allow .so as input
         """
-        self.c_code = c_code
         self.asm_code = asm_code
+        self.c_code = None
         
-        if not check_if_already_build():
-            build()
-
-        if len(c_code) == 0:
-            print("please pass some c code")
-            return
-
-        if len(asm_code) == 0:
+        if len(c_code) != 0:
+            self.c_code = c_code
             if not self.compile():
                 return
+
+        if len(asm_code) != 0:
+            self.asm_code = asm_code
         
         self.target = target
         self.arg_width = 1
-        self.arg_num_in = 1
+        self.arg_num_in = 2
         self.arg_num_out = 1
+        self.number_of_batches = 10 
+        self.batch_size = 100
 
         if len(self.target) == 0:
             if self.parse():
@@ -208,7 +216,7 @@ class Library:
 
     def run(self):
         """
-        actually runs the code
+        actually runs the code of my library
         """
         
         c_c_code = create_string_buffer(str.encode(self.c_code))
@@ -219,6 +227,35 @@ class Library:
                           self.arg_width,
                           self.arg_num_in,
                           self.arg_num_out)
+    def run_library(self):
+        """This runs the code of the `MeasureSuiteLibrary`"""
+        if self.asm_code is None:
+            print("no assembly code")
+            return 
+
+        lib = CDLL(Library.MEASURESUITELIBRARY) 
+        ms = create_string_buffer(1024)
+        # ms = ctypes.c_void_p(t)
+        
+        tmp = str.encode(self.asm_code)
+        c_asm_code = create_string_buffer(tmp)
+        id = -1
+        lib.ms_initialize(ms, self.arg_width, self.arg_num_in, self.arg_num_out)
+        print("init")
+
+        lib.ms_load_data(ms, InputType.ASM, c_asm_code, len(tmp), c_void_p(0), pointer(id))
+        print("load")
+        
+        lib.ms_measure(ms, self.batch_size, self.number_of_batches)
+        print("measure")
+        
+        j = ctypes.c_void_p(0)
+        l = 0
+        lib.ms_get_json(ms, j, pointer(l))
+        print("json")
+
+        for i in range(128):
+            print(ms[i])
 
     @staticmethod
     def profile(c_code: str, 
