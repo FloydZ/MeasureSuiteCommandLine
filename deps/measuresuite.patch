@@ -1,3 +1,13 @@
+diff --git a/bin/msc b/bin/msc
+index 04b7f74..6c260e3 100755
+--- a/bin/msc
++++ b/bin/msc
+@@ -1,4 +1,4 @@
+-#!/usr/bin/bash
++#!/usr/bin/env bash
+
+ #  Copyright 2023 University of Adelaide
+ #
 diff --git a/Makefile b/Makefile
 index a35db1b..8857497 100644
 --- a/Makefile

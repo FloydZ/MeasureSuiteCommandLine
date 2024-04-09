@@ -35,7 +35,7 @@ class MSC:
         _, files = _check_if_files_exists(files, self.__supported_file_types)
         self.files = files
 
-    def execute(self,):
+    def execute(self):
         """
         Internal function. Do call it. Call `run` instead
         :return:
@@ -44,7 +44,13 @@ class MSC:
             logging.error("error available")
             return False, ""
 
-        cmd = [MSC.BINARY_PATH] + self.files
+        command = self.files
+        assert isinstance(command, list)
+        for i in range(len(command)):
+            if isinstance(command[i], Path):
+                command[i] = command[i].abspath()
+
+        cmd = ["sh", self.BINARY_PATH] + command
         for c in cmd:
             assert isinstance(c, str)
 

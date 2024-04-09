@@ -9,7 +9,7 @@ cd ../../
 
 # build MeasureSuite
 cd deps/MeasureSuite
-patch -N Makefile < ../measuresuite.patch
+git apply < ../measuresuite.patch
 make
 cd ../../
 

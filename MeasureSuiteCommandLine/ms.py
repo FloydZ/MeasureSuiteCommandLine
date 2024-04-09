@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """ wrapper around ms """
+
 import logging
 import json
 import os
@@ -46,16 +47,10 @@ class MS:
 
         # compile given c files
         for i, file in enumerate(files):
-            _, file_extension = os.path.splitext(file)
-            if file_extension == ".c":
-                result, outfile = _compile(file)
-                if not result:
-                    self.__error = True
-                    logging.error("could not compile: %s", file)
-                    return
+            if isinstance(file, Path):
+                self.__files[i] = file.absolute()
 
-                files[i] = outfile
-
+        for i, file in enumerate(files):
             _, file_extension = os.path.splitext(file)
             if file_extension == ".so" and len(self.__symbol) == 0:
                 self.__error = True
@@ -85,13 +80,13 @@ class MS:
                   text=True, encoding="utf-8")
         p.wait()
         assert p.stdout
+        data = p.stdout.read()
 
         if p.returncode != 0:
-            logging.error("MS: couldn't execute: %s", " ".join(cmd))
-            print(p.stdout.read())
+            print(data)
+            logging.error("MS: %s, couldn't execute: %s", data, " ".join(cmd))
             return False
 
-        data = p.stdout.read()
         data = str(data).replace("b'", "").replace("\\n'", "").lstrip()
         data = json.loads(data, object_hook=lambda d: SimpleNamespace(**d))
         data.cycles = [[float(b) for b in a] for a in data.cycles]

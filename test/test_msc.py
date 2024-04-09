@@ -9,6 +9,11 @@ def test_simple():
     w = MSC(files)
     status, d = w.run()
     assert status
-
     print(d)
 
+
+def test_version():
+    """simply checks if the __version__ function existsA
+    """
+    w = MSC([]).__version__()
+    assert w

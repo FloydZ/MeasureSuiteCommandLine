@@ -1,6 +1,7 @@
 from MeasureSuiteCommandLine import MS
 
 
+
 def test_simple():
     """
     test only object file
@@ -20,11 +21,12 @@ def test_simple():
     assert len(d.cycles) == 2
     assert len(d.cycles[0]) == 31
     assert len(d.cycles[1]) == 31
+f
 
 
 def test_compile():
     """
-    test that only i
+    test the compiler
     """
     files = ["test/c/test.c", "test/c/test2.c"]
     w = MS(files)
@@ -42,9 +44,10 @@ def test_compile():
     assert len(d.cycles[1]) == 31
 
 
+
 def test_assembly():
     """
-    test the 
+    test the assembler 
     """
     files = ["test/asm/test.asm", "test/asm/test2.asm"]
     w = MS(files)
@@ -86,4 +89,3 @@ def test_assembly_str():
     assert len(d.cycles) == 2
     assert len(d.cycles[0]) == 31
     assert len(d.cycles[1]) == 31
-
