@@ -14,17 +14,19 @@ cd MeasureSuiteCommandLine
 pip install -r requirements.txt
 ./build/sh
 ```
-and that should do it. If you have `nix` install you can alternatlvly run:
+and that should do it. If you have `nix` install you can alternatively run:
 ```bash
 git clone --recursive https://github.com/FloydZ/MeasureSuiteCommandLine
 cd MeasureSuiteCommandLine
 nix-shell
 ```
+NOTE: currently the nix approach is broken, as the relative import from git 
+via `requirements` is not possible.
 
 C Interface
 ----
-After you build the libray a binary `main` is available in `build`. Use it like
-so:
+After you build the library a binary `main` is available in `build`. Use it 
+like so:
 ```bash
 ./main "#include <stdint.h>
 void add_two_numbers(uint64_t *o, const uint64_t *i0, const uint64_t *i1) { 
@@ -60,6 +62,8 @@ Python Wrapper:
 
 ```python
 c_code = "#include <stdint.h>\nvoid add_two_numbers(uint64_t *o, const uint64_t *i0, const uint64_t *i1) {\n  *o = *i0 + *i1;\n}\n"
-w = Wrapper_MeasureSuiteCommandLine(c_code)
-w.run()
+asm_code = 
+w = MS([c_code])
+d = w.run()
+print(d)
 ```

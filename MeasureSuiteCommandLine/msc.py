@@ -1,69 +1,74 @@
 #!/usr/bin/env python3
-""" test """
-
+""" wrapper around `MSC` """
 import logging
 import os
 from pathlib import Path
 from typing import Union
 from subprocess import Popen, PIPE, STDOUT
+from .helper import _check_if_files_exists
 
 
-class Msc:
+class MSC:
     """
     wrapper around the `msc` binary
     """
 
-    BINARY_PATH = "./deps/MeasureSuite/bin/msc"
+    BINARY_PATH = "deps/MeasureSuite/bin/msc"
+
     def __init__(self, files: Union[list[str], list[Path]]):
         """
+        :param files:
         """
-        for f in files:
-            ff = f
-            if isinstance(f, Path):
-                ff = f.absolute()
+        self.__supported_file_types = [".asm", ".s"]
+        self.__error = False
 
-            assert isinstance(ff, str)
-            if not os.path.isfile(ff):
-                logging.error("not a file: %s", ff)
-                return
+        if not os.path.exists(MSC.BINARY_PATH):
+            self.__error = True
+            logging.error("msc binary not found")
+            return
 
+        if len(files) < 1:
+            self.__error = True
+            logging.error("please pass at least a single file to the class")
+            return
+
+        _, files = _check_if_files_exists(files, self.__supported_file_types)
         self.files = files
-        self.execute(files)
 
-    def execute(self, command: Union[list[str], list[Path]]):
+    def execute(self,):
         """
         Internal function. Do call it. Call `run` instead
-
-        :param command: can be either a single file or a list of files
         :return:
-
         """
-        assert isinstance(command, list)
-        for i in range(len(command)):
-            if isinstance(command[i], Path):
-                command[i] = command[i].abspath()
+        if self.__error:
+            logging.error("error available")
+            return False, ""
 
-        cmd = [self.BINARY_PATH] + command
+        cmd = [MSC.BINARY_PATH] + self.files
         for c in cmd:
             assert isinstance(c, str)
 
         logging.debug(cmd)
-        print(cmd)
         p = Popen(cmd, stdout=PIPE, stderr=STDOUT, universal_newlines=True,
                   text=True, encoding="utf-8")
         p.wait()
         assert p.stdout
 
-        print(p.returncode)
-        if p.returncode != 0:
-            logging.error("Error: MSC: couldnt execute: %s", " ".join(cmd))
-            return
-
         data = p.stdout.readlines()
         data = [str(a).replace("b'", "")
-                      .replace("\\n'", "")
-                      .lstrip() for a in data]
+                .replace("\\n'", "")
+                .lstrip() for a in data]
+
+        if p.returncode != 0:
+            logging.error("Error: MSC: couldn't execute: %s %s", " ".join(cmd), data)
+            return False, data
+
         print(data)
+        return True, data
+
+    def run(self):
+        """simple helper around execute"""
+        return self.execute()
 
     def __version__(self):
         """

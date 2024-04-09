@@ -7,7 +7,7 @@ cd deps/AssemblyLine
 make 
 cd ../../
 
-# build measuresuite
+# build MeasureSuite
 cd deps/MeasureSuite
 patch -N Makefile < ../measuresuite.patch
 make
@@ -20,3 +20,7 @@ cmake ..
 make 
 cd ..
 
+# build tests
+cd test
+cc c/test.c -c -o test.o
+cc c/test2.c -c -o test2.o

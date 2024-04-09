@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import argparse
-from pycparser import c_ast, parse_file
 import tempfile
 from ctypes import *
 from typing import Union
@@ -11,62 +10,21 @@ import json
 import logging
 from pathlib import Path
 
-BUILD_FOLDER = "/build"
-DEBUG = True
-
-
-def build():
-    """
-    simply builds the needed C project.
-    """
-    # first create the build folder
-    path = str(pathlib.Path().resolve())
-    path += BUILD_FOLDER
-    os.mkdir(path)
-
-    if DEBUG:
-        print("build:", path)
-
-    # next run the cmake command
-    cmd = ["cmake", ".."]
-    p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT,
-              preexec_fn=os.setsid, cwd=path)
-    p.wait()
-    if p.returncode != 0:
-        print("ERROR cmake")
-        return 1
-
-    # next run make
-    cmd = ["make"]
-    p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT,
-              preexec_fn=os.setsid, cwd=path)
-    p.wait()
-    if p.returncode != 0:
-        print("ERROR make")
-        return 2
-
-    return 0
-
-
-def check_if_already_build():
-    """
-    checks whether `build` was called or not.
-    """
-    path = str(pathlib.Path().resolve()) + BUILD_FOLDER
-    return os.path.exists(path)
+from .helper import DEBUG, BUILD_FOLDER, build, check_if_already_build
 
 
 class Wrapper_MeasureSuiteCommandLine:
     """
-    wrapper around the C wrapper I wrote. Its not a wrapper around the 
+    wrapper around the C wrapper I wrote. It's not a wrapper around the
     `libmeasuresuite.so` library.
     """
-    def __init__(self, c_code: str, asm_code: str="", target: str=""):
+
+    def __init__(self, c_code: str, asm_code: str = "", target: str = ""):
         """
         """
         self.c_code = c_code
         self.asm_code = asm_code
-        
+
         if not check_if_already_build():
             build()
 
@@ -77,7 +35,7 @@ class Wrapper_MeasureSuiteCommandLine:
         if len(asm_code) == 0:
             if self.compile():
                 return
-        
+
         self.target = target
         self.arg_width = 1
         self.arg_num_in = 1
@@ -88,64 +46,6 @@ class Wrapper_MeasureSuiteCommandLine:
                 return
         # self.run()
 
-    def parse(self):
-        """
-        this function is called to generate a `AST` from the given C code
-        to extract the callable functions and its arguments
-
-        :return 0 on success
-                1 on any error
-        """
-        # A simple visitor for FuncDef nodes that prints the names and
-        # locations of function definitions.
-        class FuncDefVisitor(c_ast.NodeVisitor):
-            def visit_FuncDef(self, node):
-                names = [n.name for n in node.decl.type.args.params]
-                types = [n.type.type.type.names for n in node.decl.type.args.params]
-                const = [n.type.type.quals for n in node.decl.type.args.params]
-                funcs[node.decl.name] = {
-                        "nr_args": len(node.decl.type.args.params),
-                        "names:": names,
-                        "types": types,
-                        "const": const
-                    }
-
-        # TODO this looks wrong
-        f = tempfile.NamedTemporaryFile(delete=False)
-        name = f.name
-        f.write(self.c_code.encode())
-        f.flush()
-        f.close()
-
-        funcs = {}
-        ast = parse_file(name, use_cpp=True)
-        v = FuncDefVisitor()
-        v.visit(ast)
-        
-        if self.target == "" and len(list(funcs.keys())) > 1:
-            print("Multiple Symbols found, cannot choose the correct one")
-            return 1
-
-        # set the target
-        if self.target == "" and len(list(funcs.keys())) == 1:
-            self.target = list(funcs.keys())[0]
-        
-        # well this is going to be an problem source
-        if funcs[self.target]["nr_args"] == 0:
-            self.arg_num_in = 0
-            self.arg_num_out = 0
-        elif funcs[self.target]["nr_args"] == 1:
-            self.arg_num_in = 1
-            self.arg_num_out = 0
-        elif funcs[self.target]["nr_args"] > 1:
-            self.arg_num_in = funcs[self.target]["nr_args"] - 1
-            self.arg_num_out = 1
-
-        if DEBUG:
-            print(funcs)
-
-        return 0
-    
     def compile(self):
         """
         if the asm code is not passed, this function will generate it.
@@ -155,11 +55,11 @@ class Wrapper_MeasureSuiteCommandLine:
         :return 0 on success
                 1 on any error
         """
-        
+
         inf = tempfile.NamedTemporaryFile(mode="w+", suffix=".c")
         outf = tempfile.NamedTemporaryFile(mode="w+", suffix=".asm")
         cmd = ["gcc", "-S", "-masm=intel", inf.name, "-o", outf.name]
-        
+
         inf.write(self.c_code)
         inf.flush()
 
@@ -173,7 +73,7 @@ class Wrapper_MeasureSuiteCommandLine:
             print("ERROR could not assemble:", p.returncode,
                   p.stdout.read().decode("utf-8"))
             return p.returncode
-        
+
         lines = outf.readlines()
         lines = [
             str(a)
@@ -197,7 +97,7 @@ class Wrapper_MeasureSuiteCommandLine:
 
             return True
 
-        lines  = filter(check_words, lines)
+        lines = filter(check_words, lines)
         self.asm_code = "".join(lines)
 
         if DEBUG:
@@ -211,22 +111,22 @@ class Wrapper_MeasureSuiteCommandLine:
         """
         actually runs the code
         """
-        
+
         c_c_code = create_string_buffer(str.encode(self.c_code))
         c_asm_code = create_string_buffer(str.encode(self.asm_code))
         c_target = create_string_buffer(str.encode(self.target))
-        wrapper_lib = CDLL("build/libwrapper.so") 
+        wrapper_lib = CDLL("build/libwrapper.so")
         wrapper_lib.bench(c_c_code, c_asm_code, c_target,
                           self.arg_width,
                           self.arg_num_in,
                           self.arg_num_out)
 
     @staticmethod
-    def profile(c_code: str, 
-                asm_code: str, 
-                target: str, 
+    def profile(c_code: str,
+                asm_code: str,
+                target: str,
                 arg_width: int,
-                arg_num_in: int, 
+                arg_num_in: int,
                 arg_num_out: int):
         """
         static functions
@@ -241,7 +141,7 @@ class Wrapper_MeasureSuiteCommandLine:
         p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT,
                   preexec_fn=os.setsid, cwd=path)
         p.wait()
-    
+
         assert p.stdout
 
         # read the output
@@ -249,7 +149,7 @@ class Wrapper_MeasureSuiteCommandLine:
         data = data.decode("ascii")
         if DEBUG:
             print(data)
-    
+
         # example output of the programm
         # {
         #   "stats":
@@ -268,7 +168,6 @@ class Wrapper_MeasureSuiteCommandLine:
         #  }
         jdata = json.loads(data)
         return jdata
-
 
 
 def main():
@@ -305,8 +204,9 @@ def main():
 
     target, arg_width, arg_num_in, arg_num_out = parse_c_code(args.c, args.t)
     jdata = Wrapper_MeasureSuiteCommandLine.profile(args.c, args.a, target, arg_width, arg_num_in,
-                    arg_num_out)
+                                                    arg_num_out)
     print(jdata)
+
 
 if __name__ == '__main__':
     test()

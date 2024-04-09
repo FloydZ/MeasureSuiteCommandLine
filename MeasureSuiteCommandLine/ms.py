@@ -3,115 +3,82 @@
 import logging
 import json
 import os
-import tempfile
 from pathlib import Path
 from typing import Union
 from subprocess import Popen, PIPE, STDOUT
 from types import SimpleNamespace
+from .helper import _check_if_files_exists, _compile
 
 
-class Result:
-    """ kp """
-    type_: str
-
-
-class PerformaceResult:
-    """ still wip """
-    class Stats:
-        """ still wip """
-        numFunctions: int
-        runtime: float
-        incorrect: int
-        timer: str
-
-    functions: list[Result]
-    cycles: list[list[float]]
-    medians: list[float]
-    avgs: list[float]
-
-
-
-class Ms:
+class MS:
     """
     wrapper around the `ms` binary
     """
-
     BINARY_PATH = "deps/MeasureSuite/ms"
-    OPT_FLAGS = ["-O3", "-march=native"]
-    CC = "cc"
 
-    def __init__(self, files: list[Union[str, Path]]):
+    def __init__(self, files: list[Union[str, Path]],
+                 symbol_: str = ""):
         """
         Measures all provided FILE's, by calling assumed function signature 
             int (*)(uint64_t out_1[], uint64_t out_2[], ..., uint64_t in_1[], uint64_t in_2[], ...);
-
         """
         self.__symbol = ""
         self.__supported_file_types = [".so", ".o", ".c", ".asm", ".s"]
         self.__cycles = []
         self.__cmd = []
-        self.__files = files
+        self.__files = []
+        self.__error = False
+
+        if not os.path.exists(MS.BINARY_PATH):
+            self.__error = True
+            logging.error("ms binary not found")
+            return
+
+        if len(files) < 1:
+            self.__error = True
+            logging.error("please pass at least a single file to the class")
+            return
+
+        result, files = _check_if_files_exists(files, self.__supported_file_types)
+        if not result:
+            self.__error = True
+            return
+
+        # compile given c files
         for i, file in enumerate(files):
-            if isinstance(file, Path):
-                self.__files[i] = file.absolute()
-
-        for i, file in enumerate(self.__files):
             _, file_extension = os.path.splitext(file)
-            if file_extension not in self.__supported_file_types:
-                logging.error("Dont know this file type: %s", file_extension)
-                return
-
             if file_extension == ".c":
-                outfile = tempfile.NamedTemporaryFile(suffix=".o").name
-                if not self.compile(outfile, file):
+                result, outfile = _compile(file)
+                if not result:
+                    self.__error = True
                     logging.error("could not compile: %s", file)
                     return
 
-                self.__files[i] = outfile
+                files[i] = outfile
 
-        if len(self.__files) < 1:
-            logging.error("please pass at least a single file to the class")
+            _, file_extension = os.path.splitext(file)
+            if file_extension == ".so" and len(self.__symbol) == 0:
+                self.__error = True
+                logging.error(".so library but no symbol given")
+                return
 
-    def compile(self, outfile: str, infile: str):
-        """
-        simple wrapper around `cc` to compile a given c file.
-        """
-        flags = ["-o", outfile, "-c", infile]
-        cmd = [Ms.CC] + flags + Ms.OPT_FLAGS
-        logging.debug(cmd)
-        p = Popen(cmd, stdout=PIPE, stderr=STDOUT, universal_newlines=True,
-                  text=True, encoding="utf-8")
-        p.wait()
-        assert p.stdout
+        if len(symbol_) > 0:
+            self.symbol(symbol_)
 
-        data = p.stdout.read()
-        data = str(data).replace("b'", "").replace("\\n'", "").lstrip()
-        print(data)
-        if p.returncode != 0:
-            logging.error("MS: could not compile: %s", " ".join(cmd))
-            return False
-
-        return True
+        self.__files = files
 
     def execute(self):
         """
         executes the internal command
-        :return false on error
+        :return bool: false on error
         """
-        if len(self.__files) < 1:
-            logging.error("please pass at least a single file to the class")
+        if self.__error:
+            logging.error("error available")
             return False
 
         cmd = [self.BINARY_PATH] + self.__cmd + self.__files
         for c in cmd:
             assert isinstance(c, str)
-
-        # make sure that, given a `.so` library that a symbol is given:
-        for file in self.__files:
-            _, file_extension = os.path.splitext(file)
-            if file_extension == ".so" and len(self.__symbol) == 0:
-                logging.error(".so library but no symbol given")
-                return False
 
         logging.debug(cmd)
         p = Popen(cmd, stdout=PIPE, stderr=STDOUT, universal_newlines=True,
@@ -204,6 +171,12 @@ class Ms:
     def check(self):
         """ wrapper """
         self.__cmd.append("--check")
+
+    def error(self):
+        """
+        :return true if an error is present.
+        """
+        return self.__error
 
     def __version__(self):
         """ returns the version """

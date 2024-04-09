@@ -8,7 +8,7 @@ __maintainer__ = "Floyd Zweydinger"
 __email__ = "zweydfg8+github@rub.de"
 __status__ = "Development"
 
-from .wrapper import Wrapper_MeasureSuiteCommandLine
-from .ms import Wrapper_MS
-from .msc import Wrapper_MSC
-from .libmeasuresuite import Wrapper_libmeasuresuite
+from .ms import MS
+from .msc import MSC
+#from .libmeasuresuite import Wrapper_libmeasuresuite
+#from .wrapper import Wrapper_MeasureSuiteCommandLine
