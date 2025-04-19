@@ -20,6 +20,7 @@ jobs:
         sudo apt-get install -y autoconf automake libtool pkg-config
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install setuptools
     
     - name: Set up Python
       uses: actions/setup-python@v3
