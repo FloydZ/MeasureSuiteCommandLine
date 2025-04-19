@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+"""
+tests for the MS wrapper
+"""
+
 from MeasureSuiteCommandLine import MS
 
 

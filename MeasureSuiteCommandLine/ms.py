@@ -51,7 +51,7 @@ class MS:
         for i, file in enumerate(files):
             if not os.path.isfile(file):
                 b, f = _write_tmp_file(str(file), ".asm")
-                if not b: 
+                if not b:
                     self.__error = True
                     print("could not write assembly")
                     return
@@ -75,7 +75,7 @@ class MS:
                 return
 
             # compile given c files
-            if file_extension == ".c": 
+            if file_extension == ".c":
                 b, object_file = _compile(file)
                 if not b:
                     self.__error = True
@@ -110,17 +110,17 @@ class MS:
             assert isinstance(c, str)
 
         logging.debug(cmd)
-        p = Popen(cmd, stdout=PIPE, stderr=STDOUT, universal_newlines=True,
-                  text=True, encoding="utf-8")
-        p.wait()
-        assert p.stdout
-        data = p.stdout.read()
+        with Popen(cmd, stdout=PIPE, stderr=STDOUT, universal_newlines=True,
+                   text=True, encoding="utf-8") as p:
+            p.wait()
+            assert p.stdout
+            data = p.stdout.read()
 
-        if p.returncode != 0:
-            cmd = " ".join(cmd)
-            logging.error("MS: {data}, couldn't execute: {data}")
-            print("MS: {data}, couldn't execute: {data}")
-            return (False, {})
+            if p.returncode != 0:
+                cmd = " ".join(cmd)
+                logging.error("MS: {data}, couldn't execute: {data}")
+                print("MS: {data}, couldn't execute: {data}")
+                return (False, {})
 
         data = str(data).replace("b'", "").replace("\\n'", "").lstrip()
         data = json.loads(data, object_hook=lambda d: SimpleNamespace(**d))
