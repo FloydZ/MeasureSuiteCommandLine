@@ -1,0 +1,39 @@
+diff --git a/bin/msc b/bin/msc
+index 04b7f74..6c260e3 100755
+--- a/bin/msc
++++ b/bin/msc
+@@ -1,4 +1,4 @@
+-#!/usr/bin/bash
++#!/usr/bin/env bash
+
+ #  Copyright 2023 University of Adelaide
+ #
+diff --git a/Makefile b/Makefile
+index a35db1b..8857497 100644
+--- a/Makefile
++++ b/Makefile
+@@ -20,6 +20,10 @@ LDLIBS     += $(shell pkg-config --libs assemblyline)
+ CPPFLAGS   += $(shell pkg-config --cflags assemblyline) -DUSE_ASSEMBLYLINE
+ endif
+ 
++#PATCH
++LDLIBS		+=-L../AssemblyLine/.libs -l:libassemblyline.a
++CPPFLAGS	+=-I../AssemblyLine/src -DUSE_ASSEMBLYLINE
++
+ ## Enable debug with make DEBUG=1
+ DEBUG ?= 0
+ ifneq ($(DEBUG), 0)
+diff --git a/lib/Makefile b/lib/Makefile
+index 6ec2107..c0de09e 100644
+--- a/lib/Makefile
++++ b/lib/Makefile
+@@ -31,6 +31,9 @@ LDLIBS     += $(shell pkg-config --libs assemblyline)
+ CPPFLAGS   += $(shell pkg-config --cflags assemblyline) -DUSE_ASSEMBLYLINE
+ endif
+ 
++LDLIBS		+=-L../../AssemblyLine/.libs -l:libassemblyline.a
++CPPFLAGS	+=-I../../AssemblyLine/src -DUSE_ASSEMBLYLINE
++
+ DEBUG ?= 0
+ ifneq ($(DEBUG), 0)
+ CFLAGS += -g -DENABLE_DEBUG

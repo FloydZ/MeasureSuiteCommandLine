@@ -52,7 +52,7 @@ setup(
     description="benchmark .o, .so, .c, .asm, .s files",
     long_description=read_text_file("README.md"),
     url="https://github.com/FloydZ/MeasureSuiteCommandLine",
-    package_dir={"": "MeasureSuiteCommandLine"},
+    package_dir={"": "AssemblyLinePython"},
     keywords=["assembly", "assembler", "asm", "opcodes", "x86", "x86-64", "isa", "cpu"],
     install_requires=["setuptools", "pycparser"],
     cmdclass={
