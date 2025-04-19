@@ -61,7 +61,7 @@ setup(
         'egg_info': CustomEggInfoCommand,
     },
     package_data={'': ['deps/']},
-    requires=[],
+    requires=["pycparser"],
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
