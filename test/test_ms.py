@@ -75,9 +75,9 @@ def test_assembly_str():
     test the
     """
     data = """mov rax, [rsi]
-    add rax, [rdx]
-    mov [rdi], rax
-    ret"""
+add rax, [rdx]
+mov [rdi], rax
+ret"""
 
     files = [data]
     w = MS(files)

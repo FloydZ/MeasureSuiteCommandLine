@@ -50,7 +50,7 @@ class MS:
         # translate everything to "str"
         for i, file in enumerate(files):
             if not os.path.isfile(file):
-                b, f = _write_tmp_file(str(file), ".asm")
+                b, f = _write_tmp_file(file, ".asm")
                 if not b:
                     self.__error = True
                     print("could not write assembly")
@@ -61,7 +61,7 @@ class MS:
                 self.__files[i] = str(file.absolute())
 
         # check if files exist
-        result, files = _check_if_files_exists(files, self.__supported_file_types)
+        result, _ = _check_if_files_exists(self.__files, self.__supported_file_types)
         if not result:
             self.__error = True
             return

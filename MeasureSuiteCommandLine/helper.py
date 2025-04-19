@@ -41,7 +41,7 @@ class PerformanceResult:
         timer: str
 
     functions: List[Result]
-    cycles: List[list[float]]
+    cycles: List[List[float]]
     medians: List[float]
     avgs: List[float]
 
@@ -58,23 +58,22 @@ def _compile(infile: Union[str, Path]) -> Tuple[bool, str]:
     """
     simple wrapper around `cc` to compile/assemble a given c/asm/s file.
     """
-    with tempfile.NamedTemporaryFile(suffix=".o") as outfile:
-        outfile = outfile.name
-        flags = ["-o", outfile, "-c", infile]
-        cmd = [CC] + flags + OPT_FLAGS
-        logging.debug(cmd)
-        with Popen(cmd, stdout=PIPE, stderr=STDOUT, universal_newlines=True,
-                   text=True, encoding="utf-8") as p:
-            p.wait()
-            assert p.stdout
+    outfile = tempfile.NamedTemporaryFile(suffix=".o").name
+    flags = ["-o", outfile, "-c", infile]
+    cmd = [CC] + flags + OPT_FLAGS
+    logging.debug(cmd)
+    with Popen(cmd, stdout=PIPE, stderr=STDOUT, universal_newlines=True,
+               text=True, encoding="utf-8") as p:
+        p.wait()
+        assert p.stdout
 
-            data = p.stdout.read()
-            data = str(data).replace("b'", "").replace("\\n'", "").lstrip()
-            if p.returncode != 0:
-                logging.error("MS: could not compile: %s %s", " ".join(cmd), data)
-                return False, outfile
+        data = p.stdout.read()
+        data = str(data).replace("b'", "").replace("\\n'", "").lstrip()
+        if p.returncode != 0:
+            logging.error("MS: could not compile: %s %s", " ".join(cmd), data)
+            return False, outfile
 
-            return True, outfile
+        return True, outfile
 
 
 def _write_tmp_file(data: str, suffix=".asm") -> Tuple[bool, str]:
@@ -83,11 +82,10 @@ def _write_tmp_file(data: str, suffix=".asm") -> Tuple[bool, str]:
     :param suffix:
     :return
     """
-    with tempfile.NamedTemporaryFile(suffix=suffix) as outfile:
-        outfile = outfile.name
-        with open(outfile, "w", encoding="utf-8") as f:
-            f.write(data)
-            return True, outfile
+    outfile = tempfile.NamedTemporaryFile(suffix=suffix).name
+    with open(outfile, "w") as f:
+        f.write(data)
+        return True, outfile
 
 
 def _parse(c_code: str, symbol: str = ""):
