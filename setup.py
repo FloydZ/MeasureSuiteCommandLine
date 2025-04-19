@@ -54,7 +54,7 @@ setup(
     url="https://github.com/FloydZ/MeasureSuiteCommandLine",
     package_dir={"": "AssemblyLinePython"},
     keywords=["assembly", "assembler", "asm", "opcodes", "x86", "x86-64", "isa", "cpu"],
-    install_requires=["setuptools", "pycparse"],
+    install_requires=["setuptools", "pycparser"],
     cmdclass={
         'install': CustomInstallCommand,
         'develop': CustomDevelopCommand,
