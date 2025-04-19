@@ -52,7 +52,8 @@ setup(
     description="benchmark .o, .so, .c, .asm, .s files",
     long_description=read_text_file("README.md"),
     url="https://github.com/FloydZ/MeasureSuiteCommandLine",
-    package_dir={"": "AssemblyLinePython"},
+    package_dir={"": "MeasureSuiteCommandLine"},
+    package_data={'': ['MeasureSuiteCommandLine/']},
     keywords=["assembly", "assembler", "asm", "opcodes", "x86", "x86-64", "isa", "cpu"],
     install_requires=["setuptools", "pycparser"],
     cmdclass={
@@ -60,7 +61,6 @@ setup(
         'develop': CustomDevelopCommand,
         'egg_info': CustomEggInfoCommand,
     },
-    package_data={'': ['deps/']},
     requires=["pycparser"],
     classifiers=[
         "Development Status :: 4 - Beta",
