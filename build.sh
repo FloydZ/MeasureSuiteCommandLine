@@ -21,6 +21,9 @@ make
 cd ..
 
 # build tests
-cd test
-cc c/test.c -c -o test.o
-cc c/test2.c -c -o test2.o
+cc test/c/test.c -c -o test/test.o
+cc test/c/test2.c -c -o test/test2.o
+
+cc test/c/test.c -c -o build/test/test.o
+cc test/c/test2.c -c -o build/test/test2.o
+cc build/test/test.o -shared -o build/test/test.so

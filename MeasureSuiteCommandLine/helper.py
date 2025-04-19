@@ -2,6 +2,7 @@
 from subprocess import Popen, PIPE, STDOUT
 from pycparser import c_ast, parse_file
 from pathlib import Path
+from typing import List, Union, Tuple
 import os
 import logging
 import pathlib
@@ -36,10 +37,10 @@ class PerformanceResult:
         incorrect: int
         timer: str
 
-    functions: list[Result]
-    cycles: list[list[float]]
-    medians: list[float]
-    avgs: list[float]
+    functions: List[Result]
+    cycles: List[list[float]]
+    medians: List[float]
+    avgs: List[float]
 
 
 class CFunction:
@@ -50,7 +51,7 @@ class CFunction:
     arg_num_out: int
 
 
-def _compile(infile: str):
+def _compile(infile: Union[str, Path]) -> Tuple[bool, str]:
     """
     simple wrapper around `cc` to compile/assemble a given c/asm/s file.
     """
@@ -70,6 +71,18 @@ def _compile(infile: str):
         return False, outfile
 
     return True, outfile
+
+
+def _write_tmp_file(data: str, suffix=".asm") -> Tuple[bool, str]:
+    """
+    :param data:
+    :param suffix:
+    :return
+    """
+    outfile = tempfile.NamedTemporaryFile(suffix=suffix).name
+    with open(outfile, "w", encoding="utf-8") as f:
+        f.write(data)
+        return True, outfile
 
 
 def _parse(c_code: str, symbol: str = ""):

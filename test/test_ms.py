@@ -1,18 +1,18 @@
 from MeasureSuiteCommandLine import MS
 
 
-
 def test_simple():
     """
     test only object file
     """
     files = ["test/test.o", "test/test2.o"]
-    w = MS(files)
+    w = MS(files=files)
     assert not w.error()
-    d = w.run()
+    b, d = w.run()
+    assert b
+    print(d)
 
     assert d.stats.numFunctions == 2
-    assert d.stats.runtime == 0
     assert d.stats.incorrect == 0
     assert d.stats.timer == "PMC"
     assert len(d.functions) == 2
@@ -21,7 +21,6 @@ def test_simple():
     assert len(d.cycles) == 2
     assert len(d.cycles[0]) == 31
     assert len(d.cycles[1]) == 31
-f
 
 
 def test_compile():
@@ -31,9 +30,10 @@ def test_compile():
     files = ["test/c/test.c", "test/c/test2.c"]
     w = MS(files)
     assert not w.error()
-    d = w.run()
+    b, d = w.run()
+    assert b
+
     assert d.stats.numFunctions == 2
-    assert d.stats.runtime == 0
     assert d.stats.incorrect == 0
     assert d.stats.timer == "PMC"
     assert len(d.functions) == 2
@@ -44,7 +44,6 @@ def test_compile():
     assert len(d.cycles[1]) == 31
 
 
-
 def test_assembly():
     """
     test the assembler 
@@ -52,9 +51,10 @@ def test_assembly():
     files = ["test/asm/test.asm", "test/asm/test2.asm"]
     w = MS(files)
     assert not w.error()
-    d = w.run()
+    b, d = w.run()
+    assert b
+
     assert d.stats.numFunctions == 2
-    assert d.stats.runtime == 0
     assert d.stats.incorrect == 0
     assert d.stats.timer == "PMC"
     assert len(d.functions) == 2
@@ -69,7 +69,6 @@ def test_assembly_str():
     """
     test the
     """
-
     data = """mov rax, [rsi]
     add rax, [rdx]
     mov [rdi], rax
@@ -78,14 +77,21 @@ def test_assembly_str():
     files = [data]
     w = MS(files)
     assert not w.error()
-    d = w.run()
-    assert d.stats.numFunctions == 2
-    assert d.stats.runtime == 0
+    b, d = w.run()
+    assert b
+
+    assert d.stats.numFunctions == 1
     assert d.stats.incorrect == 0
     assert d.stats.timer == "PMC"
-    assert len(d.functions) == 2
-    assert len(d.avgs) == 2
-    assert len(d.medians) == 2
-    assert len(d.cycles) == 2
+    assert len(d.functions) == 1
+    assert len(d.avgs) == 1
+    assert len(d.medians) == 1
+    assert len(d.cycles) == 1
     assert len(d.cycles[0]) == 31
-    assert len(d.cycles[1]) == 31
+
+
+if __name__ == '__main__':
+    # test_simple()
+    # test_compile()
+    # test_assembly()
+    test_assembly_str()

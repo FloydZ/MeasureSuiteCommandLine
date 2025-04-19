@@ -33,6 +33,7 @@ let
 
     # dev
     ruff
+    gtest
     jetbrains.pycharm-community
   ] ++ (lib.optionals pkgs.stdenv.isLinux ([
   ]));
@@ -40,8 +41,7 @@ in
 let
   buildInputs  = with pkgs; [
       clang
-      llvmPackages.bintools
-      rustup
+      gtest
   ] ++ extraBuildInputs;
   lib-path = with pkgs; lib.makeLibraryPath buildInputs;
   shell = pkgs.mkShell {
