@@ -11,7 +11,7 @@ authors = [
 ]
 
 maintainers = [
-  { name = "FloydZ", email = "floyd.zweydinger+github@rub.de"" }
+  { name = "FloydZ", email = "floyd.zweydinger+github@rub.de" }
 ]
 
 dependencies = []
