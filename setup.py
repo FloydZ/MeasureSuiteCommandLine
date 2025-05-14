@@ -12,7 +12,7 @@ import subprocess
 def custom_command():
     """ build the needed `python_build` package """
     if sys.platform in ['linux']:
-        os.system('./MeasureSuiteCommandLine.sh')
+        os.system('./build.sh')
 
 
 class CustomInstallCommand(install):

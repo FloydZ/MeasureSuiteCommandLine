@@ -16,11 +16,11 @@ make
 cd ../../
 
 # build local project
-mkdir -p build
-cd build 
-cmake ..
-make 
-cd ..
+#mkdir -p build
+#cd build 
+#cmake ..
+#make 
+#cd ..
 
 # build tests
 cc test/c/test.c -c -o test/test.o
