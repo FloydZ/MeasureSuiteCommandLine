@@ -1,0 +1,30 @@
+[project]
+name = "MeasureSuiteCommandLine"
+version = "0.1.0"
+description = "Control all Build Systems"
+readme = "README.md"
+requires-python = ">=3.8"
+#license = { text = "MIT" }
+
+authors = [
+  { name = "FloydZ", email = "floyd.zweydinger+github@rub.de" }
+]
+
+maintainers = [
+  { name = "FloydZ", email = "floyd.zweydinger+github@rub.de" }
+]
+
+dependencies = [
+    "pycparser"
+]
+
+[tool.setuptools.packages.find]
+where = ["MeasureSuiteCommandLine"]
+
+[project.urls]
+"Homepage" = "https://github.com/FloydZ/MeasureSuiteCommandLine"
+"Repository" = "https://github.com/FloydZ/MeasureSuiteCommandLine"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"

@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
+"""
+contains helper function regarding 
+"""
 from subprocess import Popen, PIPE, STDOUT
-from pycparser import c_ast, parse_file
 from pathlib import Path
+from typing import List, Union, Tuple, Any
 import os
 import logging
 import pathlib
 import tempfile
+from pycparser import c_ast, parse_file
 
 
 OPT_FLAGS = ["-O3", "-march=native"]
@@ -36,10 +40,10 @@ class PerformanceResult:
         incorrect: int
         timer: str
 
-    functions: list[Result]
-    cycles: list[list[float]]
-    medians: list[float]
-    avgs: list[float]
+    functions: List[Result]
+    cycles: List[List[float]]
+    medians: List[float]
+    avgs: List[float]
 
 
 class CFunction:
@@ -50,7 +54,7 @@ class CFunction:
     arg_num_out: int
 
 
-def _compile(infile: str):
+def _compile(infile: Union[str, Path]) -> Tuple[bool, str]:
     """
     simple wrapper around `cc` to compile/assemble a given c/asm/s file.
     """
@@ -58,18 +62,30 @@ def _compile(infile: str):
     flags = ["-o", outfile, "-c", infile]
     cmd = [CC] + flags + OPT_FLAGS
     logging.debug(cmd)
-    p = Popen(cmd, stdout=PIPE, stderr=STDOUT, universal_newlines=True,
-              text=True, encoding="utf-8")
-    p.wait()
-    assert p.stdout
+    with Popen(cmd, stdout=PIPE, stderr=STDOUT, universal_newlines=True,
+               text=True, encoding="utf-8") as p:
+        p.wait()
+        assert p.stdout
 
-    data = p.stdout.read()
-    data = str(data).replace("b'", "").replace("\\n'", "").lstrip()
-    if p.returncode != 0:
-        logging.error("MS: could not compile: %s %s", " ".join(cmd), data)
-        return False, outfile
+        data = p.stdout.read()
+        data = str(data).replace("b'", "").replace("\\n'", "").lstrip()
+        if p.returncode != 0:
+            logging.error("MS: could not compile: %s %s", " ".join(cmd), data)
+            return False, outfile
 
-    return True, outfile
+        return True, outfile
+
+
+def _write_tmp_file(data: str, suffix=".asm") -> Tuple[bool, str]:
+    """
+    :param data:
+    :param suffix:
+    :return
+    """
+    outfile = tempfile.NamedTemporaryFile(suffix=suffix).name
+    with open(outfile, "w") as f:
+        f.write(data)
+        return True, outfile
 
 
 def _parse(c_code: str, symbol: str = ""):
@@ -86,6 +102,9 @@ def _parse(c_code: str, symbol: str = ""):
     # A simple visitor for FuncDef nodes that prints the names and
     # locations of function definitions.
     class FuncDefVisitor(c_ast.NodeVisitor):
+        """
+        this class allows us to only visit function
+        """
         def visit_FuncDef(self, node):
             names = [n.name for n in node.decl.type.args.params]
             types = [n.type.type.type.names for n in node.decl.type.args.params]
@@ -97,11 +116,11 @@ def _parse(c_code: str, symbol: str = ""):
                 "const": const
             }
 
-    f = tempfile.NamedTemporaryFile(delete=False)
-    name = f.name
-    f.write(c_code.encode())
-    f.flush()
-    f.close()
+    with tempfile.NamedTemporaryFile(delete=False) as f:
+        name = f.name
+        f.write(c_code.encode())
+        f.flush()
+        f.close()
 
     c = CFunction()
     funcs = {}
@@ -133,19 +152,6 @@ def _parse(c_code: str, symbol: str = ""):
     return True, c
 
 
-def _parse_asm(asm_code: str, symbol: str = ""):
-    """
-    :param asm_code the asm code to analyse
-    :param symbol
-
-    :return True, CFunction:  on success
-            False, CFunction: on any error
-    """
-    # TODO not implemented
-    c = CFunction()
-    return False, c
-
-
 def build():
     """
     simply builds the needed C project.
@@ -160,21 +166,21 @@ def build():
 
     # next run the cmake command
     cmd = ["cmake", ".."]
-    p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT,
-              preexec_fn=os.setsid, cwd=path)
-    p.wait()
-    if p.returncode != 0:
-        print("ERROR cmake")
-        return 1
+    with Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT,
+               preexec_fn=os.setsid, cwd=path) as p:
+        p.wait()
+        if p.returncode != 0:
+            print("ERROR cmake")
+            return 1
 
-    # next run make
-    cmd = ["make"]
-    p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT,
-              preexec_fn=os.setsid, cwd=path)
-    p.wait()
-    if p.returncode != 0:
-        print("ERROR make")
-        return 2
+        # next run make
+        cmd = ["make"]
+        p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT,
+                  preexec_fn=os.setsid, cwd=path)
+        p.wait()
+        if p.returncode != 0:
+            print("ERROR make")
+            return 2
 
     return 0
 
@@ -187,62 +193,7 @@ def check_if_already_build():
     return os.path.exists(path)
 
 
-def _check_if_ccode_or_asmcode(array: list):
-    """
-    checks if any element in `array` is either valid c code or asm code.
-    If successfully detected it will also automatically compile/assemble it
-    and replaces the entry with a temporary object file.
-
-    NOTE: call this function before you call `_check_if_files_exists`
-    :param array
-    :return
-    """
-    if len(array) == 0:
-        logging.debug("no input")
-        return True, []
-
-    ret = [CFunction]*len(array)
-    for i, a in enumerate(array):
-        if isinstance(a, str):
-            # first try to parse it as a C file
-            status, cf = _parse(a)
-            if status:
-                # first write back: argument information about
-                ret[i] = cf
-
-                # next write the c code into a tmp file
-                cfile = tempfile.NamedTemporaryFile(suffix=".c")
-                cfile.write(a)
-                cfile.flush()
-                cfile.close()
-                status2, outfile = _compile(cfile.name)
-                if status2:
-                    array[i] = outfile
-                    continue
-                else:
-                    logging.error("couldn't compile c file")
-                    return False, ret
-
-            # try to assemble file
-            status, cf = _parse_asm(a)
-            if status:
-                ret[i] = cf
-                cfile = tempfile.NamedTemporaryFile(suffix=".asm")
-                cfile.write(a)
-                cfile.flush()
-                cfile.close()
-                status2, outfile = _compile(cfile.name)
-                if status2:
-                    array[i] = outfile
-                    continue
-                else:
-                    logging.error("couldn't assemble asm file")
-                    return False, ret
-
-    return True, ret
-
-
-def _check_if_files_exists(files: list, types=[]):
+def _check_if_files_exists(files: List[Any], types: Union[None, List[str]]=None):
     """
     check if every file in `files` exists and (if given) it's of any
     type given in `types`.
@@ -258,9 +209,7 @@ def _check_if_files_exists(files: list, types=[]):
             return False, files
 
         _, file_extension = os.path.splitext(file)
-        if file_extension not in types:
+        if types is not None and file_extension not in types:
             logging.error("Dont know this file type: %s", file_extension)
             return False, files
     return True, files
-
-
