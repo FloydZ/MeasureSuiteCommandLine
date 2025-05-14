@@ -1,3 +1,6 @@
 [submodule "src/MeasureSuiteCommandLine/deps/AssemblyLine"]
 	path = src/MeasureSuiteCommandLine/deps/AssemblyLine
 	url = https://github.com/0xADE1A1DE/AssemblyLine
+[submodule "src/MeasureSuiteCommandLine/deps/MeasureSuite"]
+	path = src/MeasureSuiteCommandLine/deps/MeasureSuite
+	url = https://github.com/0xADE1A1DE/MeasureSuite
