@@ -32,13 +32,15 @@ dependencies = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/FloydZ/MeasureSuiteCommandLine"
 "Repository" = "https://github.com/FloydZ/MeasureSuiteCommandLine"
+
+[project.scripts]
+sample = "sample:main"
 
 [tool.setuptools]
 include-package-data = true 
 [packages.find]
 where = ["src"]
-include = ["deps"]
+include = ["deps", "src"]
 exclude = ["tests"]
 
