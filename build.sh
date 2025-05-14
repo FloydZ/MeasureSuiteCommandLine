@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# make sure everything is there
+git submodule update --init
 
 # build assemblyline
 cd deps/AssemblyLine

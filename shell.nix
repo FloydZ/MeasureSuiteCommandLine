@@ -21,6 +21,8 @@ let
 
 
     # needed to compile `MeasureSuite` with `AssemblyLine`
+    gnumake
+    cmake
     pkg-config 
     automake
     autoconf
@@ -73,6 +75,7 @@ let
         source ./$VENV/bin/activate
         export PYTHONPATH=$PYTHONPATH:`pwd`/$VENV/${myPython.sitePackages}/
         ./build.sh
+        pip install pycparser
         pip install -e .
     '';
   };
