@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Union, List, Tuple
 from subprocess import Popen, PIPE, STDOUT
 from types import SimpleNamespace
+
 from .helper import _check_if_files_exists, _compile, _write_tmp_file
 
 
@@ -15,7 +16,8 @@ class MS:
     """
     wrapper around the `ms` binary
     """
-    BINARY_PATH = "deps/MeasureSuite/ms"
+    cp = os.path.dirname(os.path.realpath(__file__))
+    BINARY_PATH = cp + "/deps/MeasureSuite/ms"
 
     def __init__(self, files: Union[List[str], List[Path]],
                  symbol_: str = ""):
@@ -110,6 +112,7 @@ class MS:
             assert isinstance(c, str)
 
         logging.debug(cmd)
+        print(cmd)
         with Popen(cmd, stdout=PIPE, stderr=STDOUT, universal_newlines=True,
                    text=True, encoding="utf-8") as p:
             p.wait()
@@ -118,8 +121,8 @@ class MS:
 
             if p.returncode != 0:
                 cmd = " ".join(cmd)
-                logging.error("MS: {data}, couldn't execute: {data}")
-                print("MS: {data}, couldn't execute: {data}")
+                logging.error(f"MS: {data}, couldn't execute: {data}")
+                print(f"MS: {data}, couldn't execute: {data}")
                 return (False, {})
 
         data = str(data).replace("b'", "").replace("\\n'", "").lstrip()

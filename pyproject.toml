@@ -39,6 +39,7 @@ sample = "sample:main"
 
 [tool.setuptools]
 include-package-data = true 
+package-data = { "MeasureSuiteCommandLine" = ["./deps/MeasureSuite/ms"] }
 [packages.find]
 where = ["src"]
 include = ["deps", "src"]

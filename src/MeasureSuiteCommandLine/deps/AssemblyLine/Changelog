@@ -1,0 +1,247 @@
+version 1.4.0-release (2025-02-10)
+
+	- added support for `mul r/64`, (thanks to sabrinamanickam)
+	- added support for `rdpru`, (thanks to JasQuirk)
+
+	- fixed bug in `shr r/m, 1`, (thanks to JasQuirk)
+
+version 1.3.2-release (2022-11-16)
+
+	- fixed bug which caused `asmline -{c,b} <NUM>` to not display the 
+	  correct chuks
+
+	- asmline {-h,--help} now emits to stdout to be conform with GNU standards
+	  and with a slightly different indentation.
+
+	- provide bash and zsh auto completion helper for asmline cli-tool
+
+version 1.3.1-release (2022-11-10)
+
+	- added support for all shift instructions shr/shl/sar/sal as well as all
+	  their respective operand encodings
+
+	- fixed operand encoding for xchg intruction when using the return register
+
+	- fixed xabort instruction missing 8-bit immediate value
+
+	- fixed xbegin instruction rel32 offset value
+	
+version 1.3.1-rc.3 (2022-08-17)
+
+	- fixed a bug which caused a segmentation fault when writing to a file via
+	  the -P switch
+	 
+version 1.3.1-rc.2 (2022-08-09)
+
+	- added four encodings for {vmovdqu, vmovupd} xmmN {xmmN,m/128}
+	  and two              for {vmovdqu, vmovupd} m/128, xmmN 
+
+version 1.3.1-rc.1 (2022-08-09)
+
+	- added encoding for movq mv
+
+	- added support for rdpmc
+
+version 1.3.0-release (2022-07-27)
+
+	- added support for multiple keywords ex: "jmp far word [rax]"
+	
+	- added support for unconditional far jump 
+
+	- added support for memory operand without register ex: "[0x7fffffff]"
+
+	- added support for push instruction with M and I operand encoding
+
+	- implemented thread safe design for global variables
+	
+	- fixed missing SIB byte for jmp instruction 
+	
+	- fixed a bug which can lead to SIGSEGV's on certain systems using
+	  `strtok_r`. (Thanks to @hugsy for pointing that out)
+
+	- fixed bug where the wrong return code is returned if the internal buffer
+	  it too small and assemblyline is compiled for non-Linux systems
+
+	- CI: Using GitHub Actions to validate Code Formatting
+
+	- CI: Using GitHub Actions to build and run checks
+
+	- Repo: Introducing badges to show current stats for the repository
+
+	- Tests: run.c now checks for cpu-flags to run the code. (Sometimes it
+	  fails because of missing CPU capabilities on GHActions)
+
+
+
+version 1.2.2-release (2022-03-29)
+
+	- added support for neg: Two's Complement Negation
+
+	- fixed a bug where shift and rotate instruction produce the wrong opcode 
+	  when immediate is zero 
+
+	- fixed a bug when using sib addressing with no base and a single operand
+
+	- asmline can now count the number of instructions that breaks a chunk boundary
+
+	- the number of instructions that break a chunk boundary can be counted when 
+	  assembling a file. 
+
+	- adding `cpuid`-instruction
+	  
+
+
+version 1.2.1-release (2022-02-23)
+	
+	- Fixed bugs regarding -imm/8
+
+
+version 1.2.0-release (2022-02-19)
+	
+	- binary file can now be generated from libassemblyline 
+	  with asm_create_bin_file()
+
+	- reformatted man page for wide screen
+
+	- added support for all operand encodings for and, or, xor, sub, and add
+	  instructions
+
+	- added support for all setcc instructions - set byte on condition
+
+	- added a command-line option in asmline for setting 
+	  assembly mode to NASM '$ asmline --nasm-sib-no-base' where:
+	  in SIB addressing if there is no base register present and scale is equal to 2; 
+	  the base register will be set to the index register and the scale will be reduced to 1.
+	  That is: "lea r15, [2*rax]" -> "lea r15, [rax+1*rax]" -> 4c 8d 3c 00
+
+	- added a command-line option in asmline for setting 
+	  assembly mode to STRICT '$ asmline --strict-sib-no-base' where:
+	  in SIB addressing when there is no base register present the index and scale would
+	  not change regardless of scale value.  
+	  That is: "lea r15, [2*rax]" -> "lea r15, [2*rax]" -> 4c 8d 3c 45 00 00 00 00
+
+
+version 1.1.0-release (2022-01-21)
+
+	- added support for scaled index addressing mode
+	  with syntax [base + scale*index + offset] or
+	  [base + index*scale + offset]
+	  ex: "add rax, [rcx+4*rbp+0x8]" or "add rax, [rcx+rbp*4+0x8]"
+
+	- added support for MMX, SSE2, AVX, and AVX2 instruction sets
+
+	- added support for pointers: byte, word, dword, and qword  
+
+	- added support for `mov [MEM], IMM` such as `mov [rsi], "0xADE1A1DE"`
+	
+	- added different modes of register size handling for 
+	  "mov register, immediate" instruction: NASM, STRICT, SMART
+
+	- improved 32-bit register supportability:
+	  using eax-r15b for memory addressing in vector extension now 
+	  produces the correct prefix (67H)
+	
+	- improved intel x86_64 instruction supportability:
+	  source code is now more inline with the intel manual, therefore
+	  more instructions can be supported in the near future
+
+	- added a command-line option in asmline for setting 
+	  assembly mode to NASM '$ asmline -n' where:
+	  if immediate size for mov is less than or equal to max signed 32-bit
+	  asmline will emit code to mov to 32-bit register rather than 64-bit.
+	  That is: "mov rax, 0x7fffffff" as "mov eax, 0x7fffffff" -> b8 ff ff ff 7f
+	  note: rax got optimized to eax for faster immediate to register transfer and
+	  produces a shorter instruction. 
+
+	- added a command-line option in asmline for setting 
+	  assembly mode to STRICT '$ asmline -t' where:  
+	  ex: even if immediate size for mov is less than or equal to max signed 32-bit
+	  pad the immediate to fit 64bit.
+	  That is: "mov rax,0x7fffffff" as "mov rax,0x000000007fffffff" 
+	    -> 48 b8 ff ff ff 7f 00 00 00 00
+
+	- added a command-line option in asmline for setting  
+	  assembly mode to SMART '$ asmline -s' where:  
+	  asmline will check the immediate value for leading 0's and thus allows manual
+	  optimizations. Immediate must be zero padded to 64-bits exactly to ensure 
+	  it will not optimize. This is currently set as default.
+	  ex: "mov rax, 0x000000007fffffff" ->  48 b8 ff ff ff 7f 00 00 00 00
+	      "mov rax, 0x7fffffff"         ->  b8 ff ff ff 7f
+
+	- assemblyline functions without asm_ prefix are now deprecated
+
+	- simplified the process for adding new instructions
+	
+	- improvements to autotools, including use of pkg-config. That enables
+	  other autotools-based projects to include assemblyline as such:
+	  add to their `configure.ac`:
+	  ```
+		AC_SUBST([LIBASSEMBLYLINE_CFLAGS])
+		AC_SUBST([LIBASSEMBLYLINE_LIBS])
+		PKG_CHECK_MODULES([LIBASSEMBLYLINE], [assemblyline >= 1.1.0])
+	  ```
+
+	- tools/asmline dynamically links to libassemblyline.so
+
+	- tools/asmline's -r[=LEN] option now runs with six arguments, which point
+	  to heap-memory. Each argumenty points to LEN (defaults to ten) 64-bit
+	  elements. It also features now --rand, which initializes those pointers to
+	  random data.
+
+	- added `asmline 1` man-page
+
+	- added man-pages for all the functions from libassemblyline (same content
+	  as libassemblyline)
+	
+
+version 1.0.5-release (2021-09-29)
+
+	- FIX another bug where 'mov reg, imm' results in a wrong instruction
+
+
+version 1.0.4-release (2021-09-27)
+	
+	- FIX bug where 'mov reg, imm' is interpreted as  movntqda
+	
+	- updated documentation
+	
+	- implemented register size optimization for mov instruction 
+	  to match nasm assembly style
+	
+	- added man page
+	
+	- added -v -h options to asmline
+
+
+version 1.0.3-release (2021-09-16)
+
+	- FIX rdtsc
+
+	- ADD rdtscp,
+	
+	- ADD ror (ri encoding only for now)
+	
+	- code maintenance
+	
+	- added library versioning
+
+
+version 1.0.2-release (2021-09-09)
+
+	- added support for the prefetch instruction
+	
+	- added support for all registers (prefetch)
+
+
+version 1.0.1-release (2021-09-09)
+
+	- added support for the rorx instruction
+	
+	- updated documentation
+
+
+version 1.0.0-release (2021-08-26)
+	
+	- initial release
+
+© 2022 GitHub, Inc.
