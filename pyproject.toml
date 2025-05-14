@@ -1,10 +1,14 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "MeasureSuiteCommandLine"
-version = "0.1.0"
-description = "Control all Build Systems"
+version = "0.3.0"
+description = "Measure Code"
 readme = "README.md"
 requires-python = ">=3.8"
-#license = { text = "MIT" }
+license-files = ["LICENSE"]
 
 authors = [
   { name = "FloydZ", email = "floyd.zweydinger+github@rub.de" }
@@ -14,17 +18,30 @@ maintainers = [
   { name = "FloydZ", email = "floyd.zweydinger+github@rub.de" }
 ]
 
+keywords = [
+    "MeasureSuite",
+    "Measure"
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Development Status :: 4 - Beta"
+]
+
 dependencies = [
     "pycparser"
 ]
 
-[tool.setuptools.packages.find]
-where = ["MeasureSuiteCommandLine"]
-
 [project.urls]
-"Homepage" = "https://github.com/FloydZ/MeasureSuiteCommandLine"
 "Repository" = "https://github.com/FloydZ/MeasureSuiteCommandLine"
 
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
+[project.scripts]
+sample = "sample:main"
+
+[tool.setuptools]
+include-package-data = true 
+package-data = { "MeasureSuiteCommandLine" = ["./deps/MeasureSuite/ms"] }
+[packages.find]
+where = ["src"]
+include = ["deps", "src"]
+exclude = ["tests"]
+
