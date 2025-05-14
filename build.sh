@@ -25,7 +25,8 @@ cd ../../
 # build tests
 cc test/c/test.c -c -o test/test.o
 cc test/c/test2.c -c -o test/test2.o
+cc test/test.o -shared -o test/test.so
 
-cc test/c/test.c -c -o build/test/test.o
-cc test/c/test2.c -c -o build/test/test2.o
-cc build/test/test.o -shared -o build/test/test.so
+#cc test/c/test.c -c -o build/test/test.o
+#cc test/c/test2.c -c -o build/test/test2.o
+#cc build/test/test.o -shared -o build/test/test.so

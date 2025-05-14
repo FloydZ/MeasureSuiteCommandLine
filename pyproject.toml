@@ -8,7 +8,7 @@ version = "0.3.0"
 description = "Measure Code"
 readme = "README.md"
 requires-python = ">=3.8"
-license-files = ["LICENSE.txt"]
+license-files = ["LICENSE"]
 
 authors = [
   { name = "FloydZ", email = "floyd.zweydinger+github@rub.de" }
@@ -24,7 +24,6 @@ keywords = [
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
     "Development Status :: 4 - Beta"
 ]
 
@@ -36,11 +35,11 @@ dependencies = [
 "Homepage" = "https://github.com/FloydZ/MeasureSuiteCommandLine"
 "Repository" = "https://github.com/FloydZ/MeasureSuiteCommandLine"
 
-[tool.setuptools]
-packages = ["MeasureSuiteCommandLine"]
-include-package-data = true 
-[packages.find]
-where = ["MeasureSuiteCommandLine"]
-include = ["deps"]
-exclude = ["tests"]
+#[tool.setuptools]
+#packages = ["MeasureSuiteCommandLine"]
+#include-package-data = true 
+#[packages.find]
+#where = ["MeasureSuiteCommandLine"]
+#include = ["deps"]
+#exclude = ["tests"]
 
