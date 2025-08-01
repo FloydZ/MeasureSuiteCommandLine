@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-contains helper function regarding 
+Contains helper functions and classes for measurement suite operations.
 """
 from subprocess import Popen, PIPE, STDOUT
 from pathlib import Path
@@ -20,20 +20,32 @@ DEBUG = True
 
 class Result:
     """
-    needed for `PerformanceResult`
-    type: "ASM"/"OBJ"/"C"/"ELF"
-    chunks: only available if type is `ASM`
+    Represents a result for performance measurement.
+
+    Attributes:
+        type_: Type of result - "ASM"/"OBJ"/"C"/"ELF"
+        chunks: Number of chunks (only available if type is `ASM`)
     """
     type_: str
     chunks: int
 
+    def __str__(self):
+        return f"Result(type={self.type_}, chunks={self.chunks})"
+
 
 class PerformanceResult:
     """
-    runtime result = output of MS
+    Contains runtime results from measurement suite execution.
     """
     class Stats:
         """
+        Statistics from measurement execution.
+
+        Attributes:
+            numFunctions: Number of functions measured
+            runtime: Total runtime of measurement
+            incorrect: Number of incorrect results
+            timer: Timer type used
         """
         numFunctions: int
         runtime: float
@@ -45,20 +57,37 @@ class PerformanceResult:
     medians: List[float]
     avgs: List[float]
 
+    def __str__(self):
+        return f"PerformanceResult(functions={len(self.functions)})"
+
 
 class CFunction:
     """
-    tracks the number of input/outputs of a function
+    Tracks the number of input/outputs of a function.
+
+    Attributes:
+        arg_num_in: Number of input arguments
+        arg_num_out: Number of output arguments
     """
     arg_num_in: int
     arg_num_out: int
 
+    def __str__(self):
+        return f"CFunction(in={self.arg_num_in}, out={self.arg_num_out})"
+
 
 def _compile(infile: Union[str, Path]) -> Tuple[bool, str]:
     """
-    simple wrapper around `cc` to compile/assemble a given c/asm/s file.
+    Simple wrapper around `cc` to compile/assemble a given c/asm/s file.
+
+    Args:
+        infile: Path to input file to compile
+
+    Returns:
+        Tuple of (success_flag, output_file_path)
     """
-    outfile = tempfile.NamedTemporaryFile(suffix=".o").name
+    with tempfile.NamedTemporaryFile(suffix=".o", delete=False) as tmp_file:
+        outfile = tmp_file.name
     flags = ["-o", outfile, "-c", infile]
     cmd = [CC] + flags + OPT_FLAGS
     logging.debug(cmd)
@@ -78,34 +107,44 @@ def _compile(infile: Union[str, Path]) -> Tuple[bool, str]:
 
 def _write_tmp_file(data: str, suffix=".asm") -> Tuple[bool, str]:
     """
-    :param data:
-    :param suffix:
-    :return
+    Write data to a temporary file with the given suffix.
+
+    Args:
+        data: Content to write to the file
+        suffix: File extension to use
+
+    Returns:
+        Tuple of (success_flag, file_path)
     """
-    outfile = tempfile.NamedTemporaryFile(suffix=suffix).name
-    with open(outfile, "w") as f:
+    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as f:
+        outfile = f.name
+
+    with open(outfile, "w", encoding="utf-8") as f:
         f.write(data)
         return True, outfile
 
 
-def _parse(c_code: str, symbol: str = ""):
+def _parse(c_code: str, symbol: str = "") -> Tuple[bool, CFunction]:
     """
-    this function is called to generate a `AST` from the given C code
-    to extract the callable functions and its arguments
+    Generate an AST from the given C code to extract callable functions and arguments.
 
-    :param c_code the c code to analyse
-    :param symbol
-
-    :return True, CFunction:  on success
-            False, CFunction: on any error
+    Args:
+        c_code: The C code to analyze
+        symbol: Optional function name to target
+        
+    Returns:
+        Tuple of (success_flag, CFunction object)
+            - True, CFunction: on success
+            - False, CFunction: on any error
     """
     # A simple visitor for FuncDef nodes that prints the names and
     # locations of function definitions.
     class FuncDefVisitor(c_ast.NodeVisitor):
         """
-        this class allows us to only visit function
+        NodeVisitor that only processes function definitions.
         """
-        def visit_FuncDef(self, node):
+        def visit_func_def(self, node):
+            """Process function definition nodes by extracting parameters."""
             names = [n.name for n in node.decl.type.args.params]
             types = [n.type.type.type.names for n in node.decl.type.args.params]
             const = [n.type.type.quals for n in node.decl.type.args.params]
@@ -152,9 +191,12 @@ def _parse(c_code: str, symbol: str = ""):
     return True, c
 
 
-def build():
+def build() -> int:
     """
-    simply builds the needed C project.
+    Builds the needed C project using CMake and Make.
+
+    Returns:
+        int: 0 on success, error code otherwise
     """
     # first create the build folder
     path = str(pathlib.Path().resolve())
@@ -167,7 +209,7 @@ def build():
     # next run the cmake command
     cmd = ["cmake", ".."]
     with Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT,
-               preexec_fn=os.setsid, cwd=path) as p:
+               cwd=path) as p:
         p.wait()
         if p.returncode != 0:
             print("ERROR cmake")
@@ -175,30 +217,38 @@ def build():
 
         # next run make
         cmd = ["make"]
-        p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT,
-                  preexec_fn=os.setsid, cwd=path)
-        p.wait()
-        if p.returncode != 0:
-            print("ERROR make")
-            return 2
+        with Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT,
+                  cwd=path) as p:
+            p.wait()
+            if p.returncode != 0:
+                print("ERROR make")
+                return 2
 
     return 0
 
 
-def check_if_already_build():
+def check_if_already_build() -> bool:
     """
-    checks whether `build` was called or not.
+    Check whether `build` was called or not.
+    
+    Returns:
+        bool: True if build folder exists, False otherwise
     """
     path = str(pathlib.Path().resolve()) + BUILD_FOLDER
     return os.path.exists(path)
 
 
-def _check_if_files_exists(files: List[Any], types: Union[None, List[str]]=None):
+def _check_if_files_exists(files: List[Any],
+                        types: Union[None, List[str]] = None) -> Tuple[bool, List[Any]]:
     """
-    check if every file in `files` exists and (if given) it's of any
-    type given in `types`.
-    :param: files list of files to check
-    :param: types
+    Check if every file in the list exists and has the correct type.
+
+    Args:
+        files: List of files to check
+        types: Optional list of allowed file extensions
+
+    Returns:
+        Tuple of (success_flag, files_list)
     """
     for i, file in enumerate(files):
         if isinstance(file, Path):

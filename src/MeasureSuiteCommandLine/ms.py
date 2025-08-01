@@ -137,7 +137,7 @@ class MS:
         return (True, data)
 
     def run(self) -> Tuple[bool, dict]:
-        """simple helper around execute"""
+        """ helper around execute """
         return self.execute()
 
     def width(self, number: int) -> "MS":
@@ -150,9 +150,7 @@ class MS:
         return self
 
     def output(self, output: int) -> "MS":
-        """
-        Number of out-arrays. Defaults to 2.
-        """
+        """ Number of out-arrays. Defaults to 2. """
         if output < 0:
             logging.error(output, "is negative")
             return self
